@@ -281,6 +281,7 @@ export default {
 				case 'detail':
 				case 'update':
 					defaultVal = await this.getDefaultVal();
+					debugger
 					this.fields = this.setFieldsDefaultVal(colVs._fieldInfo, defaultVal ? defaultVal : this.params.defaultVal);
 					break;
 			}

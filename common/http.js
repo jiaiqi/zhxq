@@ -24,7 +24,7 @@ let FormateDate = function(date) {
 fly.interceptors.request.use((request) => {
 	//给所有请求添加自定义header
 	uni.showLoading({
-		mask: true,
+		// mask: true,
 		title: "加载中"
 	})
 	let _self = this
