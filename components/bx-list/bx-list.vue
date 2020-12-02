@@ -365,7 +365,7 @@ export default {
 				serviceName: serviceName,
 				colNames: ['*'],
 				condition: this.condition,
-				page: { rownumber: this.pageInfo.rownumber, pageNo: this.pageInfo.pageNo },
+				page: { rownumber: this.onlyShowTitle ? 21 : this.pageInfo.rownumber, pageNo: this.pageInfo.pageNo },
 				order: this.order
 			};
 			if (this.listType === 'proc') {

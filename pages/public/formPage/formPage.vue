@@ -225,6 +225,7 @@ export default {
 		getFieldsV2: async function() {
 			let app = uni.getStorageSync('activeApp');
 			let colVs = await this.getServiceV2(this.serviceName, this.type, this.type, app);
+			colVs = this.deepClone(colVs)
 			let defaultVal = null;
 			this.colsV2Data = colVs;
 			if (colVs.service_view_name) {
@@ -233,10 +234,6 @@ export default {
 				});
 			}
 			switch (this.type) {
-				case 'update':
-					defaultVal = await this.getDefaultVal();
-					this.fields = this.setFieldsDefaultVal(colVs._fieldInfo, defaultVal ? defaultVal : this.params.defaultVal);
-					break;
 				case 'add':
 					this.fields = colVs._fieldInfo.map(field => {
 						if (this.defaultCondition && Array.isArray(this.defaultCondition) && colVs._fieldInfo && Array.isArray(colVs._fieldInfo)) {
@@ -244,12 +241,13 @@ export default {
 								colVs._fieldInfo.forEach(field => {
 									if (cond.colName === field.column) {
 										field['value'] = cond['value'];
-										field['disabled'] = true;
+										// field['disabled'] = true;
 									}
 								});
 							});
 						}
 						if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
+							// 从上一页面传来的某个字段的条件（fk类型的字段才用得上）
 							this.fieldsCond.forEach(item => {
 								if (item.column === field.column && field.option_list_v2 && Array.isArray(field.option_list_v2.conditions) && Array.isArray(item.condition)) {
 									field.option_list_v2.conditions = field.option_list_v2.conditions.concat(item.condition);
@@ -260,10 +258,9 @@ export default {
 					});
 					break;
 				case 'detail':
+				case 'update':
 					defaultVal = await this.getDefaultVal();
 					this.fields = this.setFieldsDefaultVal(colVs._fieldInfo, defaultVal ? defaultVal : this.params.defaultVal);
-					break;
-				default:
 					break;
 			}
 		},
@@ -399,8 +396,8 @@ export default {
 			border-radius: 5rpx;
 		}
 	}
-	.main-table{
-		.normal-title{
+	.main-table {
+		.normal-title {
 			margin-left: 20rpx;
 		}
 	}
@@ -422,7 +419,7 @@ export default {
 			transition: 0.2s all ease-in-out;
 			border-radius: 10rpx;
 			margin-right: 10rpx;
-			&:nth-child(3n+1){
+			&:nth-child(3n + 1) {
 				margin-right: 0;
 			}
 			&:active {

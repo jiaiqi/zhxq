@@ -639,10 +639,11 @@ export default {
 				let fieldData = this.fieldData;
 				if (fieldData.type === 'treeSelector') {
 					if (fieldData.colData && fieldData.value) {
-						this.treeSelectorShowValue = fieldData.colData[fieldData.option_list_v2.key_disp_col];
+						this.treeSelectorShowValue = `${fieldData.colData[fieldData.option_list_v2.refed_col]}/${fieldData.colData[fieldData.option_list_v2.key_disp_col]}`;
 					} else if (!fieldData.colData || !fieldData.value) {
 						this.treeSelectorShowValue = fieldData.value;
 					}
+					this.$emit('on-value-change', this.fieldData);
 				}
 			});
 		}
