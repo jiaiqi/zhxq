@@ -699,8 +699,10 @@ export default {
 	width: 100upx;
 	height: 100upx;
 	border-radius: 50%;
-	background-color: #0bc99d;
+	// background-color: #0bc99d;
+	background-color: #0081ff;
 	z-index: 100;
+	transition: all 0.2s;
 	&::before {
 		position: absolute;
 		width: 8upx;
@@ -721,7 +723,7 @@ export default {
 	}
 	&:active {
 		transform: rotate(45deg);
-		transition: all 0.2s;
+		filter: blur(1px);
 	}
 }
 </style>

@@ -132,60 +132,81 @@ export default {
 			let data = this.deepClone(e);
 			let formData = this.params.defaultVal;
 			let condition = [{ colName: e.foreign_key.column_name, ruleType: 'eq', value: formData[e.foreign_key.referenced_column_name] }];
-			if (e.foreign_key && e.foreign_key.more_config && e.foreign_key.more_config.targetType && formData[e.foreign_key.referenced_column_name]) {
-				let targetType = e.foreign_key.more_config.targetType;
-				if (targetType === 'list') {
-					uni.navigateTo({
-						url: '/pages/public/list/list?serviceName=' + e.service_name + '&cond=' + JSON.stringify(condition)
-					});
-				} else if (targetType === 'detail') {
-					if (e.childData && e.childData.data && e.childData.data.length > 0) {
-						let params = {
-							type: 'update',
-							formDisabled: true,
-							condition: [
-								{
-									colName: 'id',
-									ruleType: 'in',
-									value: e.childData.data[0].id
-								}
-							],
-							serviceName: e.service_name
-							// "defaultVal": row
-						};
+			if (e.foreign_key && e.foreign_key.more_config && typeof e.foreign_key.more_config === 'string') {
+				try {
+					e.foreign_key.more_config = JSON.parse(e.foreign_key.more_config);
+				} catch (e) {
+					//TODO handle the exception
+				}
+			}
+			if (e.foreign_key && e.foreign_key.more_config && formData[e.foreign_key.referenced_column_name]) {
+				let moreConfig = e.foreign_key.more_config;
+				if (e.foreign_key.more_config.targetType) {
+					let targetType = e.foreign_key.more_config.targetType;
+					if (targetType === 'list') {
 						uni.navigateTo({
-							url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
+							url: '/pages/public/list/list?pageType=list&serviceName=' + e.service_name + '&cond=' + JSON.stringify(condition)
 						});
-					} else {
-						uni.showModal({
-							title: '提示',
-							content: '暂无数据，是否添加数据',
-							success(res) {
-								if (res.confirm) {
-									let params = {
-										type: 'add',
-										serviceName: e.service_name.replace('_select', '_add')
-										// defaultVal:formData
-									};
-									// referenced_column_name //被引用的字段
-									// column //子表字段
-									console.log(e);
-									if (e.foreign_key && e.foreign_key.referenced_column_name && e.foreign_key.column_name) {
-										params.defaultCondition = [
-											{
-												colName: e.foreign_key.referenced_column_name,
-												ruleType: 'eq',
-												value: formData[e.foreign_key.column_name]
-											}
-										];
+					} else if (targetType === 'detail') {
+						if (e.childData && e.childData.data && e.childData.data.length > 0) {
+							let params = {
+								type: 'update',
+								formDisabled: true,
+								condition: [
+									{
+										colName: 'id',
+										ruleType: 'in',
+										value: e.childData.data[0].id
 									}
-									uni.navigateTo({
-										url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
-									});
+								],
+								serviceName: e.service_name
+								// "defaultVal": row
+							};
+							uni.navigateTo({
+								url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
+							});
+						} else {
+							uni.showModal({
+								title: '提示',
+								content: '暂无数据，是否添加数据',
+								success(res) {
+									if (res.confirm) {
+										let params = {
+											type: 'add',
+											serviceName: e.service_name.replace('_select', '_add')
+											// defaultVal:formData
+										};
+										// referenced_column_name //被引用的字段
+										// column //子表字段
+										console.log(e);
+										if (e.foreign_key && e.foreign_key.referenced_column_name && e.foreign_key.column_name) {
+											params.defaultCondition = [
+												{
+													colName: e.foreign_key.referenced_column_name,
+													ruleType: 'eq',
+													value: formData[e.foreign_key.column_name]
+												}
+											];
+										}
+										uni.navigateTo({
+											url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
+										});
+									}
 								}
-							}
-						});
+							});
+						}
 					}
+				}
+				if (moreConfig.app_list_column && typeof moreConfig.app_list_column == 'object' && moreConfig.app_list_column.title) {
+					uni.navigateTo({
+						url:
+							'/pages/public/list/list?pageType=list&serviceName=' +
+							e.service_name +
+							'&cond=' +
+							JSON.stringify(condition) +
+							'&viewTemp=' +
+							JSON.stringify(moreConfig.app_list_column)
+					});
 				}
 			} else {
 				uni.navigateTo({
@@ -225,7 +246,7 @@ export default {
 		getFieldsV2: async function() {
 			let app = uni.getStorageSync('activeApp');
 			let colVs = await this.getServiceV2(this.serviceName, this.type, this.type, app);
-			colVs = this.deepClone(colVs)
+			colVs = this.deepClone(colVs);
 			let defaultVal = null;
 			this.colsV2Data = colVs;
 			if (colVs.service_view_name) {

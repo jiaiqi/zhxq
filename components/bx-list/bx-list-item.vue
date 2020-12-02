@@ -227,10 +227,6 @@ export default {
 				[];
 			}
 		},
-		showSearchBar: {
-			type: Boolean,
-			default: false
-		},
 		rowButton: {
 			type: Array,
 			default: () => {
