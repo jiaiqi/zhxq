@@ -635,7 +635,6 @@ export default {
 			// this.field.condition.forEach()
 		}
 		if (this.fieldData.type === 'treeSelector') {
-			debugger
 			this.getTreeSelectorData().then(_ => {
 				let fieldData = this.fieldData;
 				if (fieldData.type === 'treeSelector') {
@@ -1241,7 +1240,9 @@ export default {
 				colNames: ['*'],
 				page: { pageNo: this.treePageInfo.pageNo, rownumber: this.treePageInfo.rownumber }
 			};
-			if(!req.serviceName){return}
+			if (!req.serviceName) {
+				return;
+			}
 			let appName = '';
 			if (self.fieldData.option_list_v2 && self.fieldData.option_list_v2.srv_app) {
 				appName = self.fieldData.option_list_v2.srv_app;

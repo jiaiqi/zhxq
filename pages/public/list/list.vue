@@ -91,8 +91,11 @@ export default {
 			this.$refs.bxList.onRefresh();
 		}
 	},
-
 	onLoad(option) {
+		this.showSearchBar = true;
+		// #ifdef MP-WEIXIN
+		this.listTop = 100;
+		// #endif
 		let query = {};
 		// #ifdef H5
 		this.listTop = 0;

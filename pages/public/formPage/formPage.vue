@@ -16,6 +16,7 @@
 			<view class="normal-title">子表</view>
 			<view class="child-service-item" v-for="item in childService" @click="toChildServiceList(item)">
 				<view class="child-service-title">{{ item.foreign_key && item.foreign_key.section_name ? item.foreign_key.section_name : item.service_view_name }}</view>
+				<view class="child-list">{{ item.listTotal }}</view>
 			</view>
 		</view>
 		<view class="button-box" v-if="colsV2Data && isArray(fields) && fields.length > 0">
@@ -243,12 +244,48 @@ export default {
 				}
 			}
 		},
+		async onSelect(appNo, serviceName, condition, page) {
+			const url = this.getServiceUrl(appNo, serviceName, 'select');
+			let req = {
+				serviceName: serviceName,
+				colNames: ['*'],
+				condition: condition ? condition : [],
+				page: page ? page : { pageNo: 1, rownumber: 20 }
+			};
+			const res = await this.$http.post(url, req);
+			if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data)) {
+				return {
+					data: res.data.data,
+					page: res.data.page
+				};
+			} else {
+				return false;
+			}
+		},
 		getFieldsV2: async function() {
 			let app = uni.getStorageSync('activeApp');
 			let colVs = await this.getServiceV2(this.serviceName, this.type, this.type, app);
 			colVs = this.deepClone(colVs);
+			if (Array.isArray(colVs.child_service) && colVs.child_service.length > 0) {
+				for (let item of colVs.child_service) {
+					if (item.service_name) {
+						let formData = this.params.defaultVal;
+						let condition = [{ colName: item.foreign_key.column_name, ruleType: 'eq', value: formData[item.foreign_key.referenced_column_name] }];
+						let result = await this.onSelect(app, item.service_name, condition);
+						if (result && Array.isArray(result.data)) {
+							item.listData = result.data;
+						} else {
+							item.listData = [];
+						}
+						if (result && result.page && result.page.total) {
+							item.listTotal = result.page.total;
+						} else {
+							item.listTotal = 0;
+						}
+					}
+				}
+			}
 			let defaultVal = null;
-			this.colsV2Data = colVs;
 			if (colVs.service_view_name) {
 				uni.setNavigationBarTitle({
 					title: colVs.service_view_name
@@ -281,10 +318,10 @@ export default {
 				case 'detail':
 				case 'update':
 					defaultVal = await this.getDefaultVal();
-					debugger
 					this.fields = this.setFieldsDefaultVal(colVs._fieldInfo, defaultVal ? defaultVal : this.params.defaultVal);
 					break;
 			}
+			this.colsV2Data = colVs;
 		},
 		async onButton(e) {
 			let req = this.$refs.bxForm.getFieldModel();
@@ -338,7 +375,6 @@ export default {
 					break;
 				case 'reset':
 					this.$refs.bxForm.onReset().then(res => {
-						debugger;
 						if (res) {
 							uni.showToast({
 								title: '已重置'
@@ -425,7 +461,7 @@ export default {
 	}
 	.child-service-box {
 		margin: 20rpx;
-		padding: 20rpx;
+		padding: 20rpx 10rpx;
 		display: flex;
 		flex-wrap: wrap;
 		box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
@@ -441,6 +477,7 @@ export default {
 			transition: 0.2s all ease-in-out;
 			border-radius: 10rpx;
 			margin-right: 10rpx;
+			flex-wrap: wrap;
 			&:nth-child(3n + 1) {
 				margin-right: 0;
 			}
@@ -452,8 +489,14 @@ export default {
 			}
 			.child-service-title {
 				// color: #0081ff;
-				letter-spacing: 2px;
+				width: 100%;
+				text-indent: 20rpx;
 				font-weight: bold;
+			}
+			.child-list {
+				width: 100%;
+				text-align: center;
+				font-size: 40rpx;
 			}
 		}
 	}
@@ -468,7 +511,7 @@ export default {
 	.button {
 		width: 40%;
 		.cu-btn {
-			background-color: #14c4bd;
+			// background-color: #14c4bd;
 			width: 100%;
 		}
 	}
