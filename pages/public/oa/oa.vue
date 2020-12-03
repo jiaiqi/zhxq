@@ -36,7 +36,6 @@ export default {
 		clickMenu(e, idx) {
 			if (Array.isArray(e.child)) {
 				e.showChild = !e.showChild;
-				debugger
 				this.$set(this.treeMenuList, idx, e);
 			}
 		},

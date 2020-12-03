@@ -166,18 +166,12 @@ export default {
 					if (response.data.data) {
 						console.log('=====2', response.data.data)
 						response.data.data.use_type = pageType
-						if ('rowButton' in response.data.data) {
-							// response.data.data._footerBtns = this.getFooterBtns(response.data.data.rowButton)
-						}
-
 						// 第一次拿到，缓存
 						let pageconfig = Vue.prototype.getPageConfig(response.data.data, pageType)
 						self.$store.commit('setSrvCol', pageconfig)
 						return pageconfig
 					}
 				} else {
-					console.log('=====3', nCols)
-
 					return nCols[0]
 				}
 			} else {
@@ -194,7 +188,7 @@ export default {
 				pageConfigs["_fieldInfo"] = Vue.prototype.getFieldInfo(v2res.srv_cols, useType)
 				// pageConfigs["_fieldInfo"] = Vue.prototype.arraySort(pageConfigs["_fieldInfo"], "seq")
 				if (useType === 'list') {
-					pageConfigs["_buttonInfo"] = Vue.prototype.getButtonInfo(v2res.gridButton)
+					pageConfigs["_buttonInfo"] = Vue.prototype.getButtonInfo(v2res.gridButton,useType)
 				}
 				if (useType === 'treelist') {
 					// pageConfigs["_buttonInfo"] = Vue.prototype.getButtonInfo(v2res.gridButton)
@@ -378,7 +372,6 @@ export default {
 		 * 
 		 */
 		Vue.prototype.getButtonInfo = function(buttons, pageType) {
-
 			let cols = buttons
 			let buttonInfo = {}
 			cols = cols.filter((item, index) => {
@@ -421,11 +414,6 @@ export default {
 					default:
 						break;
 				}
-
-				// if( item.button_type === "submit"){
-				// 	buttonInfo.ontap = Vue.prototype.onRequest
-				// }
-
 			})
 			return cols
 		}
@@ -1440,7 +1428,7 @@ export default {
 										if (!isAuthUserInfo && !isAuth) {
 											uni.showModal({
 												title: '提示',
-												content: "您还未授权获取用户信息,点击确定按钮跳转到授权页面",
+												content: "请先登录",
 												success(res) {
 													uni.setStorageSync('isToLogin', true)
 													if (res.confirm) {
@@ -1459,9 +1447,6 @@ export default {
 														uni.setStorageSync('isToLogin', false)
 													}
 												},
-												complete() {
-
-												}
 											})
 										} else if (isAuthUserInfo) {
 											wx.getUserInfo({

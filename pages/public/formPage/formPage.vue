@@ -94,11 +94,25 @@ export default {
 			uni.setStorageSync('activeApp', destApp);
 		}
 	},
+	onPullDownRefresh() {
+		if (this.serviceName && this.type) {
+			this.getFieldsV2();
+			setTimeout(()=>{
+				uni.stopPullDownRefresh()
+			},1000)
+		}
+	},
 	onLoad(option) {
 		const destApp = option.destApp;
 		if (destApp) {
 			uni.setStorageSync('activeApp', destApp);
 		}
+		uni.$on('form-data-change', () => {
+			if (this.serviceName && this.type) {
+				 uni.startPullDownRefresh();
+				// this.getFieldsV2();
+			}
+		});
 		if (option.fieldsCond) {
 			this.fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
 		}
@@ -116,11 +130,13 @@ export default {
 			this.type = this.params.type;
 			this.condition = this.params.condition;
 			this.defaultVal = this.params.defaultVal;
-			this.getFieldsV2();
+			// this.getFieldsV2();
+			uni.startPullDownRefresh();
 		} else if (option.serviceName && option.type) {
 			this.serviceName = option.serviceName;
 			this.type = option.type;
-			this.getFieldsV2();
+			// this.getFieldsV2();
+			uni.startPullDownRefresh();
 		} else {
 			uni.showToast({
 				title: '加载错误',
@@ -229,6 +245,12 @@ export default {
 		async getDefaultVal() {
 			if (this.type === 'detail' || this.type === 'update') {
 				let app = uni.getStorageSync('activeApp');
+				if(this.params.serviceName.indexOf('_update')!==-1){
+					this.params.serviceName = this.params.serviceName.replace('_update','_select')
+				}
+				if(this.params.serviceName.indexOf('_add')!==-1){
+					this.params.serviceName = this.params.serviceName.replace('_add','_select')
+				}
 				let url = this.getServiceUrl(app, this.params.serviceName, 'select');
 				let req = {
 					serviceName: this.params.serviceName,
@@ -366,6 +388,7 @@ export default {
 								showCancel: false,
 								success(res) {
 									if (res.confirm) {
+										uni.$emit('form-data-change');
 										uni.navigateBack();
 									}
 								}

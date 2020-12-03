@@ -62,9 +62,9 @@ export default {
 		this.getPageItemList();
 	},
 	mounted() {
-		 	wx.showShareMenu({
-		  withShareTicket: true
-		})
+		wx.showShareMenu({
+			withShareTicket: true
+		});
 		// wx.showShareMenu({
 		// 	withShareTicket: true,
 		// 	menus: ['shareAppMessage', 'shareTimeline']
@@ -326,7 +326,7 @@ export default {
 								// });
 								break;
 						}
-						itemList = res.data.data;
+						itemList = res.data.data.filter(item => item.display !== '隐藏');
 					});
 					return itemList;
 				}
@@ -359,7 +359,7 @@ export default {
 				if (res.data.state === 'SUCCESS') {
 					const data = res.data.data[0];
 					if (data) {
-						const fileurl = this.$api.srvHost + '/file/download?filePath=' + data.fileurl+'&bx_auth_ticket='+uni.getStorageSync('bx_auth_ticket');
+						const fileurl = this.$api.srvHost + '/file/download?filePath=' + data.fileurl + '&bx_auth_ticket=' + uni.getStorageSync('bx_auth_ticket');
 						return fileurl;
 					}
 				}

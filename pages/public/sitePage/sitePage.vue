@@ -218,7 +218,6 @@ export default {
 			let ress = await this.$http.post(urls, reqs);
 			if (ress.data.state === 'SUCCESS') {
 				if (ress.data.data.length > 0) {
-					debugger;
 					self.isOwner = true;
 					console.log('qi请求=====》》', self.isOwner);
 					uni.setStorageSync('is_owner', true);

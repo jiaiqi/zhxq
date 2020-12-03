@@ -25,7 +25,9 @@
 			"style": {}
 		}, {
 			"path": "pages/public/formPage/formPage",
-			"style": {}
+			"style": {
+				"enablePullDownRefresh": true
+			}
 		}, {
 			"path": "pages/public/homePage/homePage",
 			"style": {
@@ -63,13 +65,13 @@
 		}, {
 			"path": "pages/public/proc/procStepDetail/procStepDetail",
 			"style": {}
-		},  {
+		}, {
 			"path": "pages/specific/plotSos/plotSos",
 			"style": {
 				"navigationBarTitleText": "紧急求助",
 				"navigationBarBackgroundColor": "#0bc99d"
 			}
-		}, 
+		},
 		{
 			"path": "pages/public/personInfo/personInfo",
 			"style": {
@@ -98,17 +100,15 @@
 		}, {
 			"path": "pages/public/webContainer/webContainer",
 			"style": {}
+		}, {
+			"path": "pages/public/oa/oa",
+			"style": {
+				"navigationBarTitleText": "百想软件AI平台",
+				"enablePullDownRefresh": false
+			}
+
 		}
-	    ,{
-            "path" : "pages/public/oa/oa",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "百想软件AI平台",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-    ],
+	],
 	"globalStyle": {
 		"navigationBarTitleText": "海纳智慧小区",
 		"navigationBarBackgroundColor": "#0bc99d",

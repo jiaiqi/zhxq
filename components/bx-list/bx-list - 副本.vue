@@ -128,7 +128,6 @@ export default {
 				if (newValue && newValue.hasOwnProperty('srv_cols')) {
 					this.srv_cols = newValue.srv_cols;
 					let rowButton = newValue.rowButton;
-					debugger
 					if (rowButton) {
 						rowButton = rowButton.filter(item => {
 							if (item.button_type == 'procdetail' && uni.getStorageSync('activeApp') === 'zhxq') {

@@ -420,6 +420,11 @@ export default {
 					}
 				}
 				return this.listData;
+			}else{
+				if(res.data.resultCode==="0011"){
+					this.$emit('login-fail')
+				}
+				this.$refs.pullScroll.finish();
 			}
 		},
 		onRefresh() {

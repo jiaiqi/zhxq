@@ -635,8 +635,8 @@ export default {
 					title: colVs.service_view_name
 				});
 			}
-			console.log('colVs', colVs);
 			this.listConfig = colVs;
+			colVs = this.deepClone(colVs)
 			if (this.pageType === 'proc') {
 				this.showFootBtn = false;
 			}

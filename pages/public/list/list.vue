@@ -33,6 +33,7 @@
 			@list-change="listChange"
 			@clickFootBtn="clickFootBtn"
 			@loadEnd="loadEnd"
+			@login-fail="loginFail"
 		></bx-list>
 		<view class="public-button-box"><view class="add-button" @click="clickAddButton" v-if="showAdd"></view></view>
 	</view>
@@ -87,7 +88,6 @@ export default {
 	},
 	onShow() {
 		if (this.serviceName && this.$refs.bxList) {
-			// this.getListV2();
 			this.$refs.bxList.onRefresh();
 		}
 	},
@@ -148,7 +148,6 @@ export default {
 			});
 		}
 		if (query.viewTemp) {
-			// let viewTemp = this.getDecodeUrl(option.viewTemp);
 			this.viewTemp = JSON.parse(query.viewTemp);
 			if (this.viewTemp.title) {
 				this.keyColumn = this.viewTemp.title;
@@ -190,7 +189,6 @@ export default {
 				//TODO handle the exception
 			}
 		}
-
 		if (query.tempWord) {
 			this.tempWord = JSON.parse(query.tempWord);
 		}
@@ -212,18 +210,16 @@ export default {
 				}
 			}
 			this.getListV2();
-		} else {
-			// uni.showToast({
-			// 	title:"无效页面",
-			// 	icon:"Error"
-			// })
-			// setTimeout(()=>{
-			// 	uni.hideToast()
-			// 	uni.navigateBack()
-			// },2000)
 		}
 	},
 	methods: {
+		loginFail() {
+			setTimeout(() => {
+				this.getListV2().then(_ => {
+					this.$refs.bxList.onRefresh();
+				});
+			}, 2000);
+		},
 		async getUserInfo() {
 			let user_no = uni.getStorageSync('basics_info').picp;
 			let urls = this.getServiceUrl('zhxq', 'srvzhxq_syrk_select', 'select');
@@ -624,8 +620,9 @@ export default {
 					title: colVs.service_view_name
 				});
 			}
-			console.log('colVs', colVs);
 			this.listConfig = colVs;
+			colVs = this.deepClone(colVs);
+			console.log('colVs', colVs);
 			if (this.pageType === 'proc') {
 				this.showFootBtn = false;
 			}

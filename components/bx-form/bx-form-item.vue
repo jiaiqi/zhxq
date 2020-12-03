@@ -1272,6 +1272,8 @@ export default {
 						let colName = item.value.slice(item.value.indexOf('data.') + 5);
 						if (fieldModelsData[colName]) {
 							item.value = fieldModelsData[colName];
+						}else{
+							item.value = ""
 						}
 					} else if (item.value.indexOf('top.user.user_no') !== -1) {
 						item.value = uni.getStorageSync('login_user_info').user_no;
