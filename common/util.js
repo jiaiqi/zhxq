@@ -143,7 +143,7 @@ export default {
 				let cols = self.$store.getters.getSrvCol
 				let nCols = cols.filter(item => item.service_name === serviceName && item.use_type === pageType)
 				console.log('=====1', nCols)
-				if (nCols.length === 0) {
+				// if (nCols.length === 0) {
 					let req = this.selectRequestObjs()
 					req.serviceName = 'srvsys_service_columnex_v2_select'
 					req.colNames = ['*']
@@ -171,9 +171,9 @@ export default {
 						self.$store.commit('setSrvCol', pageconfig)
 						return pageconfig
 					}
-				} else {
-					return nCols[0]
-				}
+				// } else {
+				// 	return nCols[0]
+				// }
 			} else {
 				return false
 			}
