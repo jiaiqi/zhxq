@@ -375,12 +375,15 @@ export default {
 					break;
 				case 'submit':
 					if (req) {
+						for (let key in req) {
+							if (!req[key]) {
+								delete req[key];
+							}
+						}
 						req = [{ serviceName: e.service_name, data: [req] }];
 						let app = uni.getStorageSync('activeApp');
 						let url = this.getServiceUrl(app, e.service_name, 'add');
-						console.log(url, e);
 						let res = await this.$http.post(url, req);
-						console.log(url, res.data);
 						if (res.data.state === 'SUCCESS') {
 							uni.showModal({
 								title: '提示',
