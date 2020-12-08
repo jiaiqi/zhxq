@@ -1,10 +1,5 @@
 <template>
 	<view>
-		<cu-custom bgColor="bg-blue" :isBack="true">
-			<block slot="backText">返回</block>
-			<block slot="content" v-if="colsV2Data.service_view_name">{{ colsV2Data.service_view_name }}</block>
-			<!-- <block slot="right"><text class="cuIcon-add" style="font-size: 40upx;margin-right: 20upx;" @click="toApply"></text></block> -->
-		</cu-custom>
 		<view class="form-wrap" v-if="fields.length > 0">
 			<bxform ref="bxForm" :pageType="type" :BxformType="type" :fields="fields"></bxform>
 			<view class="btn-box"><button @click="submitData" class="cu-btn bg-blue">提交</button></view>

@@ -375,12 +375,13 @@ export default {
 					break;
 				case 'submit':
 					if (req) {
-						for (let key in req) {
-							if (!req[key]) {
-								delete req[key];
+						let data = this.deepClone(req)
+						for (let key in data) {
+							if (!data[key]) {
+								delete data[key];
 							}
 						}
-						req = [{ serviceName: e.service_name, data: [req] }];
+						req = [{ serviceName: e.service_name, data: [data] }];
 						let app = uni.getStorageSync('activeApp');
 						let url = this.getServiceUrl(app, e.service_name, 'add');
 						let res = await this.$http.post(url, req);

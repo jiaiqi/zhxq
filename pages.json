@@ -3,8 +3,8 @@
 		{
 			"path": "pages/public/index/index",
 			"style": {
-				"navigationBarTitleText": "导航",
-				"navigationBarBackgroundColor": "#0bc99d"
+				"navigationBarTitleText": "导航"
+				// "navigationBarBackgroundColor": "#0bc99d"
 			}
 		},
 		// {
@@ -31,7 +31,7 @@
 		}, {
 			"path": "pages/public/homePage/homePage",
 			"style": {
-				"navigationBarTitleText": "海纳智慧小区",
+				// "navigationBarTitleText": "海纳智慧小区",
 				"navigationBarBackgroundColor": "#0bc99d"
 			}
 		}, {
@@ -110,8 +110,9 @@
 		}
 	],
 	"globalStyle": {
-		"navigationBarTitleText": "海纳智慧小区",
-		"navigationBarBackgroundColor": "#0bc99d",
+		// "navigationBarTitleText": "海纳智慧小区",
+		"navigationBarTextStyle":"black",
+		"navigationBarBackgroundColor": "#fff",
 		"backgroundColor": "#F8F8F8"
 	}
 }
