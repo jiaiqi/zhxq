@@ -195,7 +195,6 @@ export default {
 	methods: {
 		getSeatInfo(e) {
 			let self = this;
-
 			uni.chooseLocation({
 				success: function(res) {
 					self.allField.forEach(item => {
@@ -209,38 +208,10 @@ export default {
 					});
 				}
 			});
-
 			uni.$once('update', function(data) {
 				console.log(data);
 				let locationData = JSON.parse(data);
 			});
-
-			// 	this.amapPlugin.getRegeo({
-			// 	success: (data) => {
-			// 		console.log("---高德---",data)
-			// 		// if(e.column === 'address'){
-			// 			this.allField.forEach(item=>{
-			// 				if(item.column === 'address'){
-			// 					item.value = data[0].name
-			// 				}else if(item.column === 'longitude'){
-			// 					item.value = data[0].longitude
-			// 				} else if(item.column === 'latitude'){
-			// 					item.value = data[0].latitude
-			// 				}
-
-			// 			})
-			// 		// }
-			// 		uni.hideLoading();
-			// 	},
-			// 	fail:(e)=>{
-			// 		uni.showToast({
-			// 			title:'获取位置信息失败,确认定位服务是否开启后重试',
-			// 			icon:'none',
-			// 			duration: 2000
-			// 		})
-			// 		console.log("error------",e)
-			// 	}
-			// });
 		},
 		pickerchange(oriData) {
 			console.log('oriData------', oriData, this.allField);
@@ -643,7 +614,7 @@ export default {
 		},
 		moreConfig: {
 			handler: function(newval, old) {
-				if (newval) {
+				if (newval&&typeof newval==='object') {
 					this.more_config = this.deepClone(newval);
 				}
 			},

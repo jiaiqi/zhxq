@@ -310,7 +310,7 @@ export default {
 								params.cond = [];
 							}
 							uni.navigateTo({
-								url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
+								url: '/pages/public/formPage/formPage?params=' + encodeURIComponent(JSON.stringify(params))
 							});
 						}
 
@@ -424,6 +424,7 @@ export default {
 							this.$refs.bxList.onRefresh();
 						}
 					}
+					debugger
 					if (data.button && data.button.button_type === 'detail') {
 						let row = res.row;
 						let btn = res.button;
@@ -437,10 +438,10 @@ export default {
 								}
 							],
 							serviceName: btn.service_name,
-							defaultVal: row
+							// defaultVal: row
 						};
 						uni.navigateTo({
-							url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
+							url: '/pages/public/formPage/formPage?params=' + encodeURIComponent(JSON.stringify(params))
 						});
 					} else if (data.button && data.button.button_type === 'customize') {
 						let moreConfig = data.button.more_config;
@@ -480,7 +481,7 @@ export default {
 								];
 							}
 							uni.navigateTo({
-								url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
+								url: '/pages/public/formPage/formPage?params=' + encodeURIComponent(JSON.stringify(params))
 							});
 						} else if (data.button.servcie_type === 'select') {
 							let params = {
@@ -541,8 +542,8 @@ export default {
 									this.$http.post(urls, reqs).then(rData => {
 										if (rData.data.data.length > 0) {
 											uni.navigateTo({
-												url: `/pages/public/list/list?serviceName=srvzhxq_syrk_select&pageType=list&params=${JSON.stringify(
-													params
+												url: `/pages/public/list/list?serviceName=srvzhxq_syrk_select&pageType=list&params=${encodeURIComponent(
+													JSON.stringify(params)
 												)}&viewTemp={"title":"_fwbm_disp","img":"zp","tip":"xm","footer":"gmsfhm"}&navigationBarTitle=房屋信息&showRowButton=true&cond=[{"colName":"person_no","ruleType":"like","value":"${
 													data.row.person_no
 												}"},{"colName":"proc_status","ruleType":"eq","value":"完成"},{ "colName": "status", "ruleType": "eq", "value": "有效" }]`
@@ -557,8 +558,8 @@ export default {
 									});
 								} else {
 									uni.navigateTo({
-										url: `/pages/public/list/list?serviceName=srvzhxq_syrk_select&pageType=list&navigationBarTitle=房屋信息&params=${JSON.stringify(
-											params
+										url: `/pages/public/list/list?serviceName=srvzhxq_syrk_select&pageType=list&navigationBarTitle=房屋信息&params=${encodeURIComponent(
+											JSON.stringify(params)
 										)}&viewTemp={"title":"_fwbm_disp","img":"zp","tip":"xm","footer":"gmsfhm"}&showRowButton=true&cond=[{"colName":"openid","ruleType":"like","value":"${
 											data.row.openid
 										}"},{"colName":"proc_status","ruleType":"eq","value":"完成"},{ "colName": "status", "ruleType": "eq", "value": "有效" }]`

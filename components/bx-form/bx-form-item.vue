@@ -1,6 +1,11 @@
 <template>
 	<view class="bx-form-item">
-		<view class="cu-form-group itemwrap" v-if="fieldData.display" :class="{ 'form-detail': pageFormType === 'detail' }">
+		<view
+			class="cu-form-group itemwrap"
+			v-if="fieldData.display"
+			:style="{ 'flex-direction': pageFormType !== 'detail' || (fieldData && fieldData.value && fieldData.value.length) > 50 ? 'column' : 'row' }"
+			:class="{ 'form-detail': pageFormType === 'detail' }"
+		>
 			<view class="title" :class="!valid.valid ? 'valid_error' : ''">
 				<text class="text-red text-shadow" v-show="fieldData.isRequire">*</text>
 				{{ fieldData.label }}:
@@ -21,10 +26,16 @@
 				<image width="100%" height="300rpx" :src="getOptionImgExplain(fieldData.option_img_explain)" v-if="showOption_img"></image>
 			</block>
 			<view v-if="pageFormType === 'detail'" class="detail-text">
-				<text class=" text-xl" v-if="pageFormType === 'detail' && fieldData.type !== 'images' && fieldData.type !== 'snote' && fieldData.type !== 'Note'">
+				<text
+					class=" text-xl"
+					v-if="pageFormType === 'detail' && fieldData.type !== 'images' && fieldData.type !== 'snote' && fieldData.type !== 'Note' && fieldData.type !== 'richText'"
+				>
 					{{ dictShowValue ? dictShowValue : treeSelectorShowValue ? treeSelectorShowValue : fieldData.value }}
 				</text>
-				<view class="" v-html="fieldData.value" v-if="pageFormType === 'detail' && (fieldData.type === 'snote' || fieldData.type === 'Note')"></view>
+				<rich-text
+					:nodes="fieldData.value"
+					v-if="pageFormType === 'detail' && (fieldData.type === 'snote' || fieldData.type === 'Note' || fieldData.type === 'richText')"
+				></rich-text>
 				<view class="" v-else-if="pageFormType === 'detail' && fieldData.type === 'images'">
 					<image
 						v-if="fieldData.type === 'images'"
@@ -41,6 +52,7 @@
 			<view
 				class="form-content"
 				:class="{
+					'show-border': fieldData.type === 'richText',
 					alo_radio: fieldData.type === 'radio' || fieldData.type === 'radioFk' || fieldData.type === 'checkboxFk' || fieldData.type === 'checkbox' || fieldData.type === 'images',
 					valid_error: !valid.valid
 				}"
@@ -138,12 +150,12 @@
 						:enable-del="fieldData.disabled ? !fieldData.disabled : true"
 						:enable-add="fieldData.disabled ? !fieldData.disabled : true"
 						:server-url="upLoadUrl"
-						@delete="deleteImage"
-						@add="getImageInfo"
 						:form-data="formData"
 						:header="reqHeader"
-						:showUploadProgress="true"
 						:server-url-delete-image="deleteFileUrl"
+						@delete="deleteImage"
+						@add="getImageInfo"
+						:showUploadProgress="true"
 						:limit="fieldData.fileNum"
 					></robby-image-upload>
 				</view>
@@ -159,6 +171,7 @@
 						:attachmentList.sync="attachmentList"
 					></attachment> -->
 				</view>
+
 				<textarea
 					style="min-height: 60px;width: 100%;"
 					:maxlength="fieldData.item_type_attr && fieldData.item_type_attr.max_len ? fieldData.item_type_attr.max_len : 100"
@@ -171,16 +184,23 @@
 					v-else-if="fieldData.type === 'textarea' && showTextarea"
 					:placeholder="'输入' + placeholderValue"
 				></textarea>
-				<input
+								<input
 					@click="showRichText = true"
 					type="text"
-					v-if="(fieldData.type === 'snote' || fieldData.type === 'Note') && !fieldData.disabled"
+					v-if="fieldData.type === 'richText' && !fieldData.disabled&&!fieldData.value"
 					:placeholder="'点击编辑' + placeholderValue"
 					:value="html2text(fieldData.value)"
 					:class="!valid.valid ? 'valid_error' : ''"
 					name="input"
 					:disabled="true"
 				/>
+				<rich-text
+					class="rich-text-content"
+					@click="showRichText = true"
+					:placeholder="'点击编辑' + placeholderValue"
+					:nodes="fieldData.value"
+					v-if="!fieldData.disabled && (fieldData.type === 'snote' || fieldData.type === 'Note' || fieldData.type === 'richText')"
+				></rich-text>
 				<picker class="pickers" @change="PickerChange($event, fieldData)" :value="index" :range="picker" v-if="fieldData.type === 'poupchange'">
 					<!-- <view class="picker">{{ index > -1 ? picker[index] : '请选择' }}</view> -->
 					<input type="text" :placeholder="'点击编辑' + placeholderValue" :value="picker[index]" :class="!valid.valid ? 'valid_error' : ''" name="input" :disabled="true" />
@@ -362,25 +382,16 @@
 				</view> -->
 			</view>
 		</view>
-		<view class="cu-modal bottom-modal" :class="{ show: showTreeSelector }">
+		<view class="cu-modal bottom-modal" :class="{ show: showTreeSelector }" @tap.self="showTreeSelector = false">
 			<view class="cu-dialog">
 				<view class="tree-selector">
 					<view class="cu-bar search bg-white">
 						<view class="search-form round">
 							<text class="cuIcon-search"></text>
-							<input @input="getTreeSelectorDataWithKey" v-model="treeSearchVal" :adjust-position="false" type="text" confirm-type="search" />
+							<input @input="getTreeSelectorDataWithKey" @confirm="getTreeSelectorDataWithKey" v-model="treeSearchVal" :adjust-position="false" type="text" confirm-type="search" />
 						</view>
+						<!-- <button class="cuIcon-add cu-btn margin-right-xs round" @click="addSelectorItem"></button> -->
 					</view>
-
-					<!-- 	<u-search
-						:show-action="false"
-						action-text="搜索"
-						:animation="true"
-						:shape="'square'"
-						v-model="treeSearchVal"
-						@change="getTreeSelectorDataWithKey"
-						style="margin: 20rpx;"
-					></u-search> -->
 					<bxTreeSelector
 						:srvInfo="isArray(fieldData.option_list_v2) ? null : fieldData.option_list_v2"
 						:treeData="treeSelectorData"
@@ -390,36 +401,31 @@
 						@clickParentNode="onTreeGridChange"
 						@clickLastNode="onMenu"
 					></bxTreeSelector>
+					<view
+						class="no-data"
+						style="letter-spacing: 2px;line-height: 300rpx;color: #007AFF;"
+						v-if="noSelectorData && (!treeSelectorData || treeSelectorData.length === 0)"
+						@click="addSelectorItem"
+					>
+						没找到想要的?
+						<text class="cuIcon-forwardfill" style="text-decoration: underline;">去添加</text>
+					</view>
 					<!-- <u-loadmore @loadmore="loadMoreTreeData" :status="treeDataStatus" :load-text="loadText" /> -->
-					<view class="dialog-button"><view class="cu-btn bg-blue shadow" @tap="showTreeSelector = false">取消</view></view>
+					<view class="dialog-button"><view class="cu-btn bg-blue shadow button" @tap="showTreeSelector = false">取消</view></view>
 				</view>
 			</view>
 		</view>
-		<view class="cu-modal bottom-modal" :class="{ show: showRichText }">
+		<view class="cu-modal bottom-modal" :class="{ show: showRichText }" @tap.self="showRichText = false">
 			<view class="cu-dialog rich-text">
-				<textarea
-					class="text-area"
-					:maxlength="fieldData.item_type_attr && fieldData.item_type_attr.max_len ? fieldData.item_type_attr.max_len : 100"
-					@blur="onInputBlur"
-					auto-height
-					v-model="fieldData.value"
-					@input="onInputChange"
-					:disabled="fieldData.disabled ? fieldData.disabled : false"
-					:class="!valid.valid ? 'valid_error' : ''"
-					:placeholder="'输入' + placeholderValue"
-				/>
-				<!-- <bx-editor :field="fieldData" ref="bxEditor" @fieldData-value-changed="editorValueChange"></bx-editor> -->
-				<view class="dialog-button">
-					<view
-						class="cu-btn bg-blue shadow"
-						@tap="
-							showRichText = false;
-							getValid();
-						"
-					>
-						确定
-					</view>
-				</view>
+				<jin-edit
+					:html="richTextVal"
+					@editOk="editOk"
+					ref="richText"
+					:uploadFileUrl="upLoadUrl"
+					:form-data="formData"
+					:header="reqHeader"
+					:server-url-delete-image="deleteFileUrl"
+				></jin-edit>
 			</view>
 		</view>
 		<uni-popup ref="popup" type="bottom" @change="changePopup">
@@ -436,6 +442,9 @@ import uniPopup from '@/components/uni-popup/uni-popup.vue';
 import bxTreeSelector from '@/components/tree-selector/tree-selector.vue';
 import bxRadio from '@/components/bx-radio/bx-radio.vue';
 import bxRadioGroup from '@/components/bx-radio-group/bx-radio-group.vue';
+import bxCheckbox from '@/components/bx-checkbox/bx-checkbox.vue';
+import bxCheckboxGroup from '@/components/bx-checkbox-group/bx-checkbox-group.vue';
+import jinEdit from '@/components/jin-edit/jin-edit.vue';
 let _this = null;
 export default {
 	name: 'bxFormItem',
@@ -447,7 +456,10 @@ export default {
 		// bxEditor,
 		bxTreeSelector,
 		bxRadio,
-		bxRadioGroup
+		bxRadioGroup,
+		bxCheckbox,
+		bxCheckboxGroup,
+		jinEdit
 		// attachment
 	},
 	props: {
@@ -500,7 +512,7 @@ export default {
 			formData: {
 				serviceName: 'srv_bxfile_service',
 				interfaceName: 'add',
-				app_no: '',
+				app_no: uni.getStorageSync('activeApp') ? uni.getStorageSync('activeApp') : '',
 				table_name: '',
 				columns: ''
 			},
@@ -547,7 +559,9 @@ export default {
 			},
 			checkedValue: [],
 			checkboxList: [],
-			showSetBox: false
+			showSetBox: false,
+			richTextVal: '',
+			noSelectorData: false
 		};
 	},
 	updated() {},
@@ -655,6 +669,7 @@ export default {
 			this.field.value = '';
 		}
 		this.fieldData = this.field;
+		this.richTextVal = this.fieldData.value;
 		this.reqHeader = {
 			bx_auth_ticket: uni.getStorageSync('bx_auth_ticket')
 		};
@@ -680,6 +695,11 @@ export default {
 		if (this.fieldData.type === 'treeSelector') {
 			// this.getTreeSelectorData();
 		}
+		uni.$on('form-data-change', res => {
+			if (res && res.refreshWithKey) {
+				this.getTreeSelectorDataWithKey();
+			}
+		});
 		if (this.fieldData.type === 'list') {
 			if (this.fieldData.options && this.fieldData.options.length > 0) {
 				this.optionsDatas = this.fieldData.options.map((item, index) => {
@@ -1158,6 +1178,16 @@ export default {
 				}
 			}
 		},
+		editOk(e) {
+			if (!e.isSave) {
+				this.richTextVal = this.fieldData.value;
+				this.$refs.richText.resetContent(this.fieldData.value);
+			} else {
+				this.fieldData.richData = e;
+				this.fieldData.value = e.html;
+			}
+			this.showRichText = false;
+		},
 		onMenu(e) {
 			const data = e.item ? e.item : {};
 			this.fieldData.value = this.fieldData.option_list_v2 && this.fieldData.option_list_v2['refed_col'] ? data[this.fieldData.option_list_v2['refed_col']] : data.no;
@@ -1179,6 +1209,17 @@ export default {
 		},
 		onTreeGridChange(e) {
 			console.log('onTreeGridChange', e);
+		},
+		addSelectorItem() {
+			let config = this.fieldData.option_list_v2;
+			let serviceName = config.serviceName.replace(/_select|_update/, '_add');
+			let fieldsCond = [{ column: config.key_disp_col, value: this.treeSearchVal }];
+			uni.navigateTo({
+				url: '/pages/public/formPage/formPage?refreshWithKey=true&serviceName=' + serviceName + '&type=add&fieldsCond=' + JSON.stringify(fieldsCond),
+				success() {
+					// this.treeSearchVal = '';
+				}
+			});
 		},
 		getTreeSelectorDataWithKey() {
 			if (this.treeSearchVal) {
@@ -1214,7 +1255,11 @@ export default {
 						]
 					});
 				}
-				this.getTreeSelectorData(null, null, relation_condition);
+				this.getTreeSelectorData(null, null, relation_condition).then(res => {
+					this.noSelectorData = Array.isArray(res) && res.length === 0 ? true : false;
+				});
+			} else {
+				this.getTreeSelectorData();
 			}
 		},
 		isChecked(e) {
@@ -1347,6 +1392,7 @@ export default {
 						self.fieldData['colData'] = item;
 					}
 				});
+				return res.data.data;
 			} else if (req.serviceName === 'srvsys_service_columnex_v2_select' && res.data && res.data.data && Array.isArray(res.data.data.srv_cols)) {
 				self.treeSelectorData = res.data.data.srv_cols;
 			}
@@ -1434,6 +1480,10 @@ export default {
 }
 .form-content {
 	width: 100%;
+	&.show-border{
+		border: 0.5px solid #d0d4d6;
+		padding: 10rpx;
+	}
 	radio-group {
 		width: 100%;
 	}
@@ -1603,7 +1653,13 @@ uni-text.input-icon {
 }
 .tree-selector {
 	min-height: 1000rpx;
+	display: flex;
+	flex-direction: column;
+	.selector-wrap {
+		flex: 1;
+	}
 }
+
 .tree-selector,
 .rich-text {
 	height: auto;
@@ -1615,7 +1671,10 @@ uni-text.input-icon {
 		justify-content: center;
 		align-items: center;
 		padding: 20rpx 0;
-		margin-top: 50rpx;
+		margin: 20rpx 0 50rpx;
+		.button {
+			min-width: 45%;
+		}
 	}
 }
 .set-box {

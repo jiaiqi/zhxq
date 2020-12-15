@@ -144,33 +144,33 @@ export default {
 				let nCols = cols.filter(item => item.service_name === serviceName && item.use_type === pageType)
 				console.log('=====1', nCols)
 				// if (nCols.length === 0) {
-					let req = this.selectRequestObjs()
-					req.serviceName = 'srvsys_service_columnex_v2_select'
-					req.colNames = ['*']
-					req.condition = []
-					let condObj = {}
-					condObj['colName'] = 'service_name'
-					condObj['ruleType'] = 'eq'
-					condObj['value'] = serviceName
-					req.condition[0] = JSON.parse(JSON.stringify(condObj))
-					condObj['colName'] = 'use_type'
-					condObj['ruleType'] = 'eq'
-					condObj['value'] = pageType
-					req.condition[1] = JSON.parse(JSON.stringify(condObj))
-					req.order = [{}]
-					req.order[0]['colName'] = 'seq'
-					req.order[0]['orderType'] = 'asc'
-					let url = Vue.prototype.getServiceUrl(appName, "srvsys_service_columnex_v2_select", "select", url)
-					url = url + "?colsel_v2=" + serviceName
-					const response = await this.$http.post(url, req)
-					if (response.data.data) {
-						console.log('=====2', response.data.data)
-						response.data.data.use_type = pageType
-						// 第一次拿到，缓存
-						let pageconfig = Vue.prototype.getPageConfig(response.data.data, pageType)
-						self.$store.commit('setSrvCol', pageconfig)
-						return pageconfig
-					}
+				let req = this.selectRequestObjs()
+				req.serviceName = 'srvsys_service_columnex_v2_select'
+				req.colNames = ['*']
+				req.condition = []
+				let condObj = {}
+				condObj['colName'] = 'service_name'
+				condObj['ruleType'] = 'eq'
+				condObj['value'] = serviceName
+				req.condition[0] = JSON.parse(JSON.stringify(condObj))
+				condObj['colName'] = 'use_type'
+				condObj['ruleType'] = 'eq'
+				condObj['value'] = pageType
+				req.condition[1] = JSON.parse(JSON.stringify(condObj))
+				req.order = [{}]
+				req.order[0]['colName'] = 'seq'
+				req.order[0]['orderType'] = 'asc'
+				let url = Vue.prototype.getServiceUrl(appName, "srvsys_service_columnex_v2_select", "select", url)
+				url = url + "?colsel_v2=" + serviceName
+				const response = await this.$http.post(url, req)
+				if (response.data.data) {
+					console.log('=====2', response.data.data)
+					response.data.data.use_type = pageType
+					// 第一次拿到，缓存
+					let pageconfig = Vue.prototype.getPageConfig(response.data.data, pageType)
+					self.$store.commit('setSrvCol', pageconfig)
+					return pageconfig
+				}
 				// } else {
 				// 	return nCols[0]
 				// }
@@ -188,7 +188,7 @@ export default {
 				pageConfigs["_fieldInfo"] = Vue.prototype.getFieldInfo(v2res.srv_cols, useType)
 				// pageConfigs["_fieldInfo"] = Vue.prototype.arraySort(pageConfigs["_fieldInfo"], "seq")
 				if (useType === 'list') {
-					pageConfigs["_buttonInfo"] = Vue.prototype.getButtonInfo(v2res.gridButton,useType)
+					pageConfigs["_buttonInfo"] = Vue.prototype.getButtonInfo(v2res.gridButton, useType)
 				}
 				if (useType === 'treelist') {
 					// pageConfigs["_buttonInfo"] = Vue.prototype.getButtonInfo(v2res.gridButton)
@@ -304,6 +304,8 @@ export default {
 						column: 'user_no',
 						showCol: 'real_name', //要展示的字段
 					}
+				} else if (item.col_type === 'snote' || item.col_type === 'Note') {
+					fieldInfo.type = 'richText'
 				} else {
 					fieldInfo.type = item.col_type
 				}
@@ -943,7 +945,7 @@ export default {
 					}]
 				};
 				let res = await Vue.prototype.onRequest(optionType, srv, req, app);
-				
+
 				if (res.data.state === 'SUCCESS' && res.data.data.length > 0) {
 					let wxUser = res.data.data[0];
 					uni.setStorageSync('backWxUserInfo', wxUser);
@@ -1136,7 +1138,7 @@ export default {
 							}
 							console.log("点击了【有效】的公共编辑按钮", row)
 							uni.navigateTo({
-								url: "/pages/public/formPage/formPage?params=" + JSON.stringify(params)
+								url: "/pages/public/formPage/formPage?params=" + encodeURIComponent(JSON.stringify(params))
 							})
 						} else {
 							console.log("点击了【无效】的公共编辑按钮")
@@ -1207,9 +1209,9 @@ export default {
 									"serviceName": btn.service_name,
 									"defaultVal": row
 								}
-								console.log("点击了【有效】的公共编辑按钮", row,params)
+								console.log("点击了【有效】的公共编辑按钮", row, params)
 								uni.navigateTo({
-									url: "/pages/public/formPage/formPage?params=" + JSON.stringify(params)
+									url: "/pages/public/formPage/formPage?params=" + encodeURIComponent(JSON.stringify(params))
 								})
 							} else {
 								console.log("点击了【无效】的公共编辑按钮")
@@ -1264,9 +1266,10 @@ export default {
 									"serviceName": btn.service_name,
 									"defaultVal": row
 								}
+
 								console.log("点击了【有效】的公共编辑按钮", row)
 								uni.navigateTo({
-									url: "/pages/public/formPage/formPage?params=" + JSON.stringify(params)
+									url: "/pages/public/formPage/formPage?params=" + encodeURIComponent(JSON.stringify(params))
 								})
 							} else {
 								console.log("点击了【无效】的公共编辑按钮")

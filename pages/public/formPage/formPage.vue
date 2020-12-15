@@ -43,7 +43,8 @@ export default {
 			defaultCondition: [],
 			params: {},
 			addType: '',
-			fieldsCond: [] //treeSelector类型字段的条件
+			fieldsCond: [] ,//treeSelector类型字段的条件
+			refreshWithKey:false, //提交成功并返回上一页面时是否刷新上个页面的数据
 		};
 	},
 	computed: {
@@ -97,9 +98,9 @@ export default {
 	onPullDownRefresh() {
 		if (this.serviceName && this.type) {
 			this.getFieldsV2();
-			setTimeout(()=>{
-				uni.stopPullDownRefresh()
-			},1000)
+			setTimeout(() => {
+				uni.stopPullDownRefresh();
+			}, 1000);
 		}
 	},
 	onLoad(option) {
@@ -109,12 +110,15 @@ export default {
 		}
 		uni.$on('form-data-change', () => {
 			if (this.serviceName && this.type) {
-				 uni.startPullDownRefresh();
+				uni.startPullDownRefresh();
 				// this.getFieldsV2();
 			}
 		});
 		if (option.fieldsCond) {
 			this.fieldsCond = JSON.parse(decodeURIComponent(option.fieldsCond));
+		}
+		if(option.refreshWithKey){
+			this.refreshWithKey = true
 		}
 		if (option.params) {
 			this.params = JSON.parse(decodeURIComponent(option.params));
@@ -123,14 +127,13 @@ export default {
 			this.addType = option.addType;
 		}
 		if (option.cond) {
-			this.defaultCondition = JSON.parse(option.cond);
+			this.defaultCondition = JSON.parse(decodeURIComponent(option.cond));
 		}
 		if (option.hasOwnProperty('params')) {
 			this.serviceName = this.params.serviceName;
 			this.type = this.params.type;
 			this.condition = this.params.condition;
 			this.defaultVal = this.params.defaultVal;
-			// this.getFieldsV2();
 			uni.startPullDownRefresh();
 		} else if (option.serviceName && option.type) {
 			this.serviceName = option.serviceName;
@@ -239,17 +242,17 @@ export default {
 				defaultVal: this.params.defaultVal
 			};
 			uni.navigateTo({
-				url: '/pages/public/formPage/formPage?params=' + JSON.stringify(params)
+				url: '/pages/public/formPage/formPage?params=' + encodeURIComponent(JSON.stringify(params))
 			});
 		},
 		async getDefaultVal() {
 			if (this.type === 'detail' || this.type === 'update') {
 				let app = uni.getStorageSync('activeApp');
-				if(this.params.serviceName.indexOf('_update')!==-1){
-					this.params.serviceName = this.params.serviceName.replace('_update','_select')
+				if (this.params.serviceName.indexOf('_update') !== -1) {
+					this.params.serviceName = this.params.serviceName.replace('_update', '_select');
 				}
-				if(this.params.serviceName.indexOf('_add')!==-1){
-					this.params.serviceName = this.params.serviceName.replace('_add','_select')
+				if (this.params.serviceName.indexOf('_add') !== -1) {
+					this.params.serviceName = this.params.serviceName.replace('_add', '_select');
 				}
 				let url = this.getServiceUrl(app, this.params.serviceName, 'select');
 				let req = {
@@ -329,8 +332,13 @@ export default {
 						if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
 							// 从上一页面传来的某个字段的条件（fk类型的字段才用得上）
 							this.fieldsCond.forEach(item => {
-								if (item.column === field.column && field.option_list_v2 && Array.isArray(field.option_list_v2.conditions) && Array.isArray(item.condition)) {
-									field.option_list_v2.conditions = field.option_list_v2.conditions.concat(item.condition);
+								if (item.column === field.column) {
+									if (field.option_list_v2 && Array.isArray(field.option_list_v2.conditions) && Array.isArray(item.condition)) {
+										field.option_list_v2.conditions = field.option_list_v2.conditions.concat(item.condition);
+									}
+									if (item.value) {
+										field.value = item.value;
+									}
 								}
 							});
 						}
@@ -375,7 +383,7 @@ export default {
 					break;
 				case 'submit':
 					if (req) {
-						let data = this.deepClone(req)
+						let data = this.deepClone(req);
 						for (let key in data) {
 							if (!data[key]) {
 								delete data[key];
@@ -392,7 +400,7 @@ export default {
 								showCancel: false,
 								success(res) {
 									if (res.confirm) {
-										uni.$emit('form-data-change');
+										uni.$emit('form-data-change',{refreshWithKey:true});
 										uni.navigateBack();
 									}
 								}
