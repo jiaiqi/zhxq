@@ -184,7 +184,7 @@
 					v-else-if="fieldData.type === 'textarea' && showTextarea"
 					:placeholder="'输入' + placeholderValue"
 				></textarea>
-								<input
+				<!-- 						<input
 					@click="showRichText = true"
 					type="text"
 					v-if="fieldData.type === 'richText' && !fieldData.disabled&&!fieldData.value"
@@ -193,7 +193,8 @@
 					:class="!valid.valid ? 'valid_error' : ''"
 					name="input"
 					:disabled="true"
-				/>
+				/> -->
+				<view @click="showRichText = true" v-if="fieldData.type === 'richText' && !fieldData.disabled && !fieldData.value">{{ '点击编辑' + placeholderValue }}</view>
 				<rich-text
 					class="rich-text-content"
 					@click="showRichText = true"
@@ -390,7 +391,7 @@
 							<text class="cuIcon-search"></text>
 							<input @input="getTreeSelectorDataWithKey" @confirm="getTreeSelectorDataWithKey" v-model="treeSearchVal" :adjust-position="false" type="text" confirm-type="search" />
 						</view>
-						<!-- <button class="cuIcon-add cu-btn margin-right-xs round" @click="addSelectorItem"></button> -->
+						<button class="cuIcon-add cu-btn margin-right-xs round" @click="addSelectorItem"></button>
 					</view>
 					<bxTreeSelector
 						:srvInfo="isArray(fieldData.option_list_v2) ? null : fieldData.option_list_v2"
@@ -400,6 +401,7 @@
 						:nodeKey="fieldData.option_list_v2 && fieldData.option_list_v2['refed_col'] ? fieldData.option_list_v2['refed_col'] : 'no'"
 						@clickParentNode="onTreeGridChange"
 						@clickLastNode="onMenu"
+						class="selector-wrap"
 					></bxTreeSelector>
 					<view
 						class="no-data"
@@ -1480,9 +1482,9 @@ export default {
 }
 .form-content {
 	width: 100%;
-	&.show-border{
+	&.show-border {
 		border: 0.5px solid #d0d4d6;
-		padding: 10rpx;
+		padding: 20rpx 10rpx;
 	}
 	radio-group {
 		width: 100%;
@@ -1652,11 +1654,13 @@ uni-text.input-icon {
 	min-height: 100rpx;
 }
 .tree-selector {
-	min-height: 1000rpx;
+	min-height: 1150rpx;
 	display: flex;
 	flex-direction: column;
 	.selector-wrap {
 		flex: 1;
+		max-height: 800rpx;
+		overflow: scroll;
 	}
 }
 
