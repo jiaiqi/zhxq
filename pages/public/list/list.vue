@@ -287,7 +287,6 @@ export default {
 								defaultVal: queryParams.defaultVal,
 								eventOrigin: item
 							};
-
 							params.cond = [
 								{
 									colName: 'fwbm',
@@ -313,8 +312,6 @@ export default {
 								url: '/pages/public/formPage/formPage?params=' + encodeURIComponent(JSON.stringify(params))
 							});
 						}
-
-						// url: '../formPage/formPage?serviceName=' + item.service_name + '&type=add&cond=' + decodeURIComponent(JSON.stringify(this.condition))
 					}
 				});
 			}
@@ -353,6 +350,7 @@ export default {
 			console.log('click-list-item:', e);
 		},
 		async clickFootBtn(data) {
+			debugger
 			let buttonInfo = data.button;
 			let rowData = data.row;
 			if (buttonInfo.operate_params && typeof buttonInfo.operate_params === 'string') {
@@ -424,7 +422,7 @@ export default {
 							this.$refs.bxList.onRefresh();
 						}
 					}
-					debugger
+					debugger;
 					if (data.button && data.button.button_type === 'detail') {
 						let row = res.row;
 						let btn = res.button;
@@ -437,7 +435,7 @@ export default {
 									value: row.id
 								}
 							],
-							serviceName: btn.service_name,
+							serviceName: btn.service_name
 							// defaultVal: row
 						};
 						uni.navigateTo({
@@ -628,7 +626,7 @@ export default {
 				this.showFootBtn = false;
 			}
 			this.publicButton = colVs.gridButton.filter(item => {
-				if (item.permission === true) {
+				// if (item.permission === true) {
 					switch (item.button_type) {
 						case 'add':
 						case 'apply':
@@ -652,7 +650,7 @@ export default {
 								return item;
 							}
 					}
-				}
+				// }
 			});
 			return colVs;
 		}

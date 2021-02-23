@@ -512,6 +512,7 @@ export default {
 			transition: 0.2s all ease-in-out;
 			border-radius: 10rpx;
 			margin-right: 10rpx;
+			margin-bottom: 10rpx;
 			flex-wrap: wrap;
 			&:nth-child(3n + 1) {
 				margin-right: 0;

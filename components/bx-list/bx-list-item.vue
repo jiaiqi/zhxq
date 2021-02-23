@@ -34,7 +34,6 @@
 							class="cu-btn round sm text-blue line-blue"
 							:class="'cuIcon-' + item.button_type"
 							v-for="item in rowButton"
-							:key="item.id"
 							@click="footBtnClick(item)"
 						>
 							{{ item.button_name }}
@@ -74,7 +73,6 @@
 							class="cu-btn round sm text-blue line-blue"
 							:class="'cuIcon-' + item.button_type"
 							v-for="item in rowButton"
-							:key="item.id"
 							@click="footBtnClick(item)"
 						>
 							{{ item.button_name }}
@@ -95,7 +93,7 @@
 				<view class="footer">
 					<text class="foot-name" v-if="goodsData.footer" @click="listItemClick">{{ goodsData.footer }}</text>
 					<view class="foot-button" v-if="showFootBtn">
-						<view class="cu-btn round sm text-blue line-blue" :class="'cuIcon-' + item.button_type" v-for="item in rowButton" :key="item.id" @click="footBtnClick(item)">
+						<view class="cu-btn round sm text-blue line-blue" :class="'cuIcon-' + item.button_type" v-for="item in rowButton"  @click="footBtnClick(item)">
 							<text v-if="deRowButDisplay(itemData, item) && !detailList">{{ item.button_name }}</text>
 						</view>
 						<text v-if="detailList" class="text-gray" :class="'cuIcon-more'"></text>
