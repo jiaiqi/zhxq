@@ -1,5 +1,5 @@
 <template>
-	<view class="bg-white" style="width:100%;" v-if="allField.length > 0">
+	<view class="bg-white bx-steps" style="width:100%;" v-if="allField.length > 0">
 		<view v-for="(item, index) in allField" :key="index">
 			<formItem
 				:procData="procData"
@@ -628,4 +628,7 @@ export default {
 };
 </script>
 
-<style lang="less"></style>
+<style lang="scss" scoped>
+	
+	
+</style>

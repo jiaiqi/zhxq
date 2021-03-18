@@ -1,5 +1,5 @@
 <template>
-  <view class="bg">
+  <view class="bg bx-steps">
     <view class="steps">
       <view class="steps_item" v-for="(i, index) in infoList" :key="index">
         <view
@@ -72,7 +72,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @keyframes info {
   0% {
     transform: translate(100px, 0);
@@ -91,6 +91,8 @@ page {
   margin-top: 20upx;
   background-color: #f2f2f2;
   display: flex;
+	overflow-y: scroll;
+	padding-bottom: 100rpx;
 }
 .steps {
   display: flex;
