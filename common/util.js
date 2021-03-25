@@ -128,7 +128,8 @@ export default {
 		 * @param {String} pageType  // use_type 取值
 		 * @param {String} app 
 		 */
-		Vue.prototype.getServiceV2 = async function(srv, srvType, pageType, app) { // 表单信息 srvType : add | update | list | detail | select
+		Vue.prototype.getServiceV2 = async function(srv, srvType, pageType,
+		app) { // 表单信息 srvType : add | update | list | detail | select
 			// use_type: detail | proclist | list | treelist | detaillist | selectlist | addchildlist | updatechildlist | procdetaillist | add | update
 			let self = this
 			let appName = app || uni.getStorageSync("activeApp")
@@ -160,7 +161,8 @@ export default {
 				req.order = [{}]
 				req.order[0]['colName'] = 'seq'
 				req.order[0]['orderType'] = 'asc'
-				let url = Vue.prototype.getServiceUrl(appName, "srvsys_service_columnex_v2_select", "select", url)
+				let url = Vue.prototype.getServiceUrl(appName, "srvsys_service_columnex_v2_select", "select",
+					url)
 				url = url + "?colsel_v2=" + serviceName
 				const response = await this.$http.post(url, req)
 				if (response.data.data) {
@@ -169,6 +171,7 @@ export default {
 					// 第一次拿到，缓存
 					let pageconfig = Vue.prototype.getPageConfig(response.data.data, pageType)
 					self.$store.commit('setSrvCol', pageconfig)
+
 					return pageconfig
 				}
 				// } else {
@@ -197,7 +200,15 @@ export default {
 				} else if (useType === 'update' || useType === 'add' || useType === 'detail') {
 					pageConfigs["_formButtons"] = Vue.prototype.getButtonInfo(v2res.formButton, useType)
 				}
-				console.log("pageConfigs", pageConfigs)
+				console.log('ticket:', uni.getStorageSync('bx_auth_ticket'))
+				uni.showModal({
+					title: '提示:ticket',
+					content: uni.getStorageSync('bx_auth_ticket')
+				})
+				uni.showModal({
+					title: '提示:pageConfigs',
+					content: JSON.stringify(v2res.formButton)
+				})
 				return pageConfigs
 			} else {
 				return false
@@ -267,14 +278,16 @@ export default {
 					fieldInfo.type = "file"
 					fieldInfo.srvInfo = {
 						tableName: item.table_name,
-						appNo: item.table_name.substring(item.table_name.indexOf("bx") + 2, item.table_name.indexOf("_"))
+						appNo: item.table_name.substring(item.table_name.indexOf("bx") + 2, item
+							.table_name.indexOf("_"))
 					}
 				} else if (item.col_type === "Image") {
 					// } else if (item.col_type === "Image" || item.col_type === "FileList") {
 					fieldInfo.type = "images"
 					fieldInfo.srvInfo = {
 						tableName: item.table_name,
-						appNo: item.table_name.substring(item.table_name.indexOf("bx") + 2, item.table_name.indexOf("_"))
+						appNo: item.table_name.substring(item.table_name.indexOf("bx") + 2, item
+							.table_name.indexOf("_"))
 					}
 				} else if (item.col_type === "Enum" || item.col_type === "Dict") {
 					fieldInfo.type = "radioFk"
@@ -343,8 +356,10 @@ export default {
 				if (item.updatable === 0 && item.updatable_add === 1 && useType === 'add') {
 					fieldInfo.disabled = false
 				}
-				fieldInfo._validators = Vue.prototype.getValidators(item.validators, item.validators_message)
-				fieldInfo._validator_obj = Vue.prototype.getValidators(item.validators, item.validators_message)
+				fieldInfo._validators = Vue.prototype.getValidators(item.validators, item
+					.validators_message)
+				fieldInfo._validator_obj = Vue.prototype.getValidators(item.validators, item
+					.validators_message)
 				fieldInfo.isRequire = fieldInfo._validators.required
 				fieldInfo.value = null //初始化value
 				fieldInfo._colDatas = item //保存原始data
@@ -379,24 +394,28 @@ export default {
 			cols = cols.filter((item, index) => {
 				switch (pageType) {
 					case "treelist":
-						if ((item.button_type === "addchild" || item.button_type === "edit" || item.button_type === "delete" ||
+						if ((item.button_type === "addchild" || item.button_type === "edit" || item
+								.button_type === "delete" ||
 								item.button_type === "add") && item.permission) {
 							return item
 						}
 						break;
 					case "list":
-						if ((item.button_type === "addchild" || item.button_type === "edit" || item.button_type === "delete" ||
+						if ((item.button_type === "addchild" || item.button_type === "edit" || item
+								.button_type === "delete" ||
 								item.button_type === "add") && item.permission) {
 							return item
 						}
 						break;
 					case "add":
-						if ((item.button_type === "reset" || item.button_type === "submit") && item.permission) {
+						if ((item.button_type === "reset" || item.button_type === "submit") && item
+							.permission) {
 							return item
 						}
 						break;
 					case "update":
-						if ((item.button_type === "reset" || item.button_type === "edit") && item.permission) {
+						if ((item.button_type === "reset" || item.button_type === "edit") && item
+							.permission) {
 							return item
 						}
 						break;
@@ -533,9 +552,11 @@ export default {
 					}
 					let Validators = {}
 					let reg = /required/gi
-					Validators['max'] = getStr(str, 'ngMaxlength=', ';').length > 0 ? parseInt(getStr(str, 'ngMaxlength=', ';')) :
+					Validators['max'] = getStr(str, 'ngMaxlength=', ';').length > 0 ? parseInt(getStr(str,
+							'ngMaxlength=', ';')) :
 						null
-					Validators['min'] = getStr(str, 'ngMinlength=', ';').length > 0 ? parseInt(getStr(str, 'ngMinlength=', ';')) :
+					Validators['min'] = getStr(str, 'ngMinlength=', ';').length > 0 ? parseInt(getStr(str,
+							'ngMinlength=', ';')) :
 						null
 					Validators['reg'] = getStr(str, 'ngPattern=', ';')
 					Validators['required'] = reg.test(str)
@@ -596,7 +617,8 @@ export default {
 				throw new Error('非对象', obj)
 			}
 			let isArray = Array.isArray(obj)
-			let newObj = isArray ? [...obj] : { ...obj
+			let newObj = isArray ? [...obj] : {
+				...obj
 			}
 			Reflect.ownKeys(newObj).forEach(key => {
 				newObj[key] = isObject(obj[key]) ? Vue.prototype.deepClone(obj[key]) : obj[key]
@@ -941,7 +963,8 @@ export default {
 					condition: [{
 						colName: 'app_no',
 						ruleType: 'eq',
-						value: uni.getStorageSync('_appNo') ? uni.getStorageSync('_appNo') : Vue.prototype.$api.appNo.wxmp
+						value: uni.getStorageSync('_appNo') ? uni.getStorageSync('_appNo') : Vue
+							.prototype.$api.appNo.wxmp
 					}]
 				};
 				let res = await Vue.prototype.onRequest(optionType, srv, req, app);
@@ -972,7 +995,8 @@ export default {
 				let req = [{
 					"serviceName": "srvwx_basic_user_info_save",
 					"data": [{
-						"app_no": uni.getStorageSync('_appNo') ? uni.getStorageSync('_appNo') : Vue.prototype.$api.appNo.wxmp,
+						"app_no": uni.getStorageSync('_appNo') ? uni.getStorageSync('_appNo') :
+							Vue.prototype.$api.appNo.wxmp,
 						// "app_no": uni.getStorageSync('_appNo'),
 						"nickname": userInfo.nickName,
 						"sex": userInfo.gender,
@@ -985,7 +1009,8 @@ export default {
 				if (e) {
 					let response = await this.$http.post(url, req);
 					console.log('setWxUserInfo', response);
-					if (response.data.state === 'SUCCESS' && response.data.data && response.data.data.length > 0) {
+					if (response.data.state === 'SUCCESS' && response.data.data && response.data.data.length >
+						0) {
 						Vue.prototype.wxLogin()
 						return response.data.data
 					}
@@ -1138,7 +1163,8 @@ export default {
 							}
 							console.log("点击了【有效】的公共编辑按钮", row)
 							uni.navigateTo({
-								url: "/pages/public/formPage/formPage?params=" + encodeURIComponent(JSON.stringify(params))
+								url: "/pages/public/formPage/formPage?params=" + encodeURIComponent(JSON
+									.stringify(params))
 							})
 						} else {
 							console.log("点击了【无效】的公共编辑按钮")
@@ -1157,7 +1183,8 @@ export default {
 											"colNames": ["*"],
 											"condition": params.condition
 										}]
-										Vue.prototype.onRequest("delete", params.serviceName, req).then((res) => {
+										Vue.prototype.onRequest("delete", params.serviceName,
+											req).then((res) => {
 											if (res.data.state === "SUCCESS") {
 
 												resolve(res.data)
@@ -1211,7 +1238,8 @@ export default {
 								}
 								console.log("点击了【有效】的公共编辑按钮", row, params)
 								uni.navigateTo({
-									url: "/pages/public/formPage/formPage?params=" + encodeURIComponent(JSON.stringify(params))
+									url: "/pages/public/formPage/formPage?params=" + encodeURIComponent(JSON
+										.stringify(params))
 								})
 							} else {
 								console.log("点击了【无效】的公共编辑按钮")
@@ -1269,30 +1297,31 @@ export default {
 
 								console.log("点击了【有效】的公共编辑按钮", row)
 								uni.navigateTo({
-									url: "/pages/public/formPage/formPage?params=" + encodeURIComponent(JSON.stringify(params))
+									url: "/pages/public/formPage/formPage?params=" + encodeURIComponent(JSON
+										.stringify(params))
 								})
 							} else {
 								console.log("点击了【无效】的公共编辑按钮")
 							}
-						case "customize":
-							//代码块
-							// if (btn.operate_type === '流程申请') {
-							// uni.navigateTo({
-							// 	url: "/pages/public/proc/apply/apply?serviceName=" + btn.operate_service
-							// })
-							return new Promise((resolve, reject) => {
-								resolve(e)
-							})
-							// }
-							break;
-						case "delete":
-							//代码块
-							break;
-						case "add":
-							//代码块
-							break;
-						default:
-							//默认代码块
+							case "customize":
+								//代码块
+								// if (btn.operate_type === '流程申请') {
+								// uni.navigateTo({
+								// 	url: "/pages/public/proc/apply/apply?serviceName=" + btn.operate_service
+								// })
+								return new Promise((resolve, reject) => {
+									resolve(e)
+								})
+								// }
+								break;
+							case "delete":
+								//代码块
+								break;
+							case "add":
+								//代码块
+								break;
+							default:
+								//默认代码块
 					}
 				}
 				console.log("btn", btn)
@@ -1438,7 +1467,8 @@ export default {
 														Vue.prototype.judgeClientEnviroment()
 														if (backUrl) {
 															uni.navigateTo({
-																url: '/pages/public/accountExec/accountExec?backUrl=' + backUrl
+																url: '/pages/public/accountExec/accountExec?backUrl=' +
+																	backUrl
 															})
 														} else {
 															uni.navigateTo({
@@ -1454,8 +1484,10 @@ export default {
 										} else if (isAuthUserInfo) {
 											wx.getUserInfo({
 												success: function(res) {
-													uni.setStorageSync('wxuserinfo', res.userInfo);
-													Vue.prototype.getWxUserInfo(res.userInfo);
+													uni.setStorageSync('wxuserinfo', res
+														.userInfo);
+													Vue.prototype.getWxUserInfo(res
+														.userInfo);
 													// self.setWxUserInfo(res.userInfo);
 													uni.setStorageSync('isAuth', true);
 												},
@@ -1510,7 +1542,8 @@ export default {
 									Vue.prototype.judgeClientEnviroment()
 									if (backUrl) {
 										uni.navigateTo({
-											url: '/pages/public/accountExec/accountExec?backUrl=' + backUrl
+											url: '/pages/public/accountExec/accountExec?backUrl=' +
+												backUrl
 										})
 									} else {
 										uni.navigateTo({
@@ -1581,14 +1614,16 @@ export default {
 												value: wxUserInfo.city,
 											}]
 											uni.navigateTo({
-												url: '/pages/addInfo/addInfo?params=' + JSON.stringify(params) + '&cond=' + JSON.stringify(
+												url: '/pages/addInfo/addInfo?params=' + JSON.stringify(
+													params) + '&cond=' + JSON.stringify(
 													cond)
 											});
 										}
 									}
 								});
 								return false
-							} else if (res.data.state === 'SUCCESS' && res.data.data.length > 0 && res.data.data[0].islock === '是') {
+							} else if (res.data.state === 'SUCCESS' && res.data.data.length > 0 && res.data.data[0]
+								.islock === '是') {
 								uni.showModal({
 									title: "提示",
 									content: "当前帐号无权限访问",
@@ -1612,8 +1647,9 @@ export default {
 		Vue.prototype.html2text = (str) => {
 			let strs = ""
 			if (!!str) {
-				strs = str.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi, '').replace(/<[^>]+?>/g, '').replace(
-					/\s+/g, ' ').replace(/ /g, ' ').replace(/>/g, ' ')
+				strs = str.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi, '').replace(/<[^>]+?>/g, '')
+					.replace(
+						/\s+/g, ' ').replace(/ /g, ' ').replace(/>/g, ' ')
 			}
 
 			return strs
