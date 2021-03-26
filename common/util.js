@@ -129,7 +129,7 @@ export default {
 		 * @param {String} app 
 		 */
 		Vue.prototype.getServiceV2 = async function(srv, srvType, pageType,
-		app) { // 表单信息 srvType : add | update | list | detail | select
+			app) { // 表单信息 srvType : add | update | list | detail | select
 			// use_type: detail | proclist | list | treelist | detaillist | selectlist | addchildlist | updatechildlist | procdetaillist | add | update
 			let self = this
 			let appName = app || uni.getStorageSync("activeApp")
@@ -201,14 +201,6 @@ export default {
 					pageConfigs["_formButtons"] = Vue.prototype.getButtonInfo(v2res.formButton, useType)
 				}
 				console.log('ticket:', uni.getStorageSync('bx_auth_ticket'))
-				uni.showModal({
-					title: '提示:ticket',
-					content: uni.getStorageSync('bx_auth_ticket')
-				})
-				uni.showModal({
-					title: '提示:pageConfigs',
-					content: JSON.stringify(v2res.formButton)
-				})
 				return pageConfigs
 			} else {
 				return false
@@ -408,8 +400,17 @@ export default {
 						}
 						break;
 					case "add":
+						debugger
 						if ((item.button_type === "reset" || item.button_type === "submit") && item
 							.permission) {
+							return item
+						} else if (item.button_type === "submit" && !item
+							.permission) {
+							uni.showModal({
+								title: '按钮无权限',
+								content: JSON.stringify(item),
+								showCancel: false
+							})
 							return item
 						}
 						break;
