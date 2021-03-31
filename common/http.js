@@ -32,7 +32,7 @@ fly.interceptors.request.use((request) => {
 	if (api.onTicket) {
 		request.headers["bx_auth_ticket"] = api.ticket
 	} else {
-		if (bxAuthTicket) {
+		if (bxAuthTicket&&request.url&&request.url.indexOf('srvwx_app_login_verify') === -1) {
 			request.headers["bx_auth_ticket"] = bxAuthTicket
 		}
 	}
