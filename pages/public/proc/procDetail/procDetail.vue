@@ -305,6 +305,9 @@
 								fieldList.forEach(item => {
 									item.fields.forEach(item2 => {
 										item2.value = '';
+										if(item2.defaultValue){
+											item2.value = item2.defaultValue;
+										}
 										// if(this.activityData[item2.column]){
 										// 	item2.value =this.activityData[item2.column];
 										// }
@@ -373,7 +376,7 @@
 					}]
 				};
 				let res = await this.onRequest('select', 'srvprocess_basic_cfg_select', req, this.srvInfo.app ? this
-					.srvInfo.app : 'zhxq');
+					.srvInfo.app : 'daq');
 				console.log('进入res===', res);
 				// console.log("流程-----",res)
 				if (res.data.state === 'SUCCESS') {
@@ -389,10 +392,13 @@
 						obj.value = key;
 						this.approvalFormCfg[0].options.push(obj);
 					}
-					// console.log("000000000000000",obj)
-					// this.approvalFormCfg[0].options.forEach(procs=>{
-
-					// })
+					if(res.data.proHanleData&&res.data.proHanleData.approval_options&&Array.isArray(res.data.proHanleData.approval_options)){
+						this.approvalFormCfg[0].options = res.data.proHanleData.approval_options.map(item => {
+							item.label = item.disp
+							return item
+						})
+					}
+				
 					// this.getCurStepConfig(res.data['proCharData'][res.data['proHanleData']['activeStep']]);
 					this.getApprovalForm(res.data['proCharData'][res.data['proHanleData']['activeStep']]); //获取当前步骤的信息
 					this.getCurStepConfig(res.data['proCharData'][0], 'firstStep'); //获取第一步信息
@@ -844,7 +850,7 @@
 		// margin-top: 100upx;
 		// padding-bottom: 150upx;
 		height: calc(100vh - var(--window-top) - 45px - 50px);
-		overflow-y:scroll ;
+		overflow-y: scroll;
 	}
 
 	.flow-view {

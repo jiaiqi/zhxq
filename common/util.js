@@ -1,3 +1,6 @@
+import api from './api.js'
+import dayjs from '@/static/js/dayjs.min.js'
+import store from '@/store/index.js'
 export default {
 	install(Vue, options) {
 		Vue.prototype.pageTitle = '加载中…' // 可以自定义变量
@@ -285,15 +288,23 @@ export default {
 					fieldInfo.type = "radioFk"
 					fieldInfo.options = item.option_list_v2
 				} else if (item.col_type === "MultilineText") {
-					// fieldInfo.type = "textarea"
-					fieldInfo.type = "input"
+					fieldInfo.type = "textarea"
+					// fieldInfo.type = "input"
 				} else if (item.col_type === "Money" || item.col_type === "Float") {
 					fieldInfo.type = "digit"
 				} else if (item.col_type === "Integer" || item.col_type === "int") {
 					fieldInfo.type = "number"
 				} else if (item.bx_col_type === "fk" && item.col_type !== "User") {
-					fieldInfo.type = "treeSelector"
-					// fieldInfo.type = "poupchange"
+					if (fieldInfo.option_list_v2.is_tree) {
+						fieldInfo.type = "treeSelectorPro"
+					} else {
+						fieldInfo.type = "poupchange"
+						// fieldInfo.type = "treeSelector"
+					}
+					fieldInfo.srvInfo = fieldInfo.option_list_v2
+					fieldInfo.srvInfo.isTree = fieldInfo.option_list_v2.is_tree
+					fieldInfo.srvInfo.column = fieldInfo.option_list_v2.refed_col
+					fieldInfo.srvInfo.showCol = fieldInfo.option_list_v2.key_disp_col
 				} else if (item.col_type === "User") {
 					fieldInfo.type = "treeSelector"
 					fieldInfo.option_list_v2 = {
@@ -352,6 +363,20 @@ export default {
 					.validators_message)
 				fieldInfo._validator_obj = Vue.prototype.getValidators(item.validators, item
 					.validators_message)
+				if (typeof fieldInfo._validators === 'object' && Object.keys(fieldInfo._validators).length >
+					0) {
+					fieldInfo.item_type_attr = {
+						max: fieldInfo._validators.max,
+						min: fieldInfo._validators.min
+					}
+				}
+				if (item.more_config && typeof item.more_config === 'string') {
+					try {
+						fieldInfo.moreConfig = JSON.parse(item.more_config)
+					} catch (e) {
+						//TODO handle the exception
+					}
+				}
 				fieldInfo.isRequire = fieldInfo._validators.required
 				fieldInfo.value = null //初始化value
 				fieldInfo._colDatas = item //保存原始data
@@ -370,6 +395,20 @@ export default {
 					fieldInfo.defaultValue = item.init_expr
 					if (item.col_type === 'Enum' || item.col_type === 'Dict') {
 						fieldInfo.value = fieldInfo.defaultValue
+					}
+					if (item.init_expr === 'new Date()') {
+						fieldInfo.defaultValue = dayjs().format('YYYY-MM-DD')
+						fieldInfo.value = dayjs().format('YYYY-MM-DD')
+						if(item.col_type=== "DateTime"){
+							fieldInfo.defaultValue = dayjs().format('YYYY-MM-DD HH:mm:ss')
+							fieldInfo.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
+						}
+					}
+					if (item.init_expr.indexOf('top.user.user_no') !== -1) {
+						if ( uni.getStorageSync('login_user_info')&& uni.getStorageSync('login_user_info').user_no) {
+							fieldInfo.defaultValue = uni.getStorageSync('login_user_info').user_no;
+							fieldInfo.value = uni.getStorageSync('login_user_info').user_no
+						}
 					}
 				}
 				return fieldInfo
@@ -396,21 +435,21 @@ export default {
 						if ((item.button_type === "addchild" || item.button_type === "edit" || item
 								.button_type === "delete" ||
 								item.button_type === "add") && item.permission) {
+							debugger
 							return item
 						}
 						break;
 					case "add":
-						debugger
 						if ((item.button_type === "reset" || item.button_type === "submit") && item
 							.permission) {
 							return item
 						} else if (item.button_type === "submit" && !item
 							.permission) {
-							uni.showModal({
-								title: '按钮无权限',
-								content: JSON.stringify(item),
-								showCancel: false
-							})
+							// uni.showModal({
+							// 	title: '按钮无权限',
+							// 	content: JSON.stringify(item),
+							// 	showCancel: false
+							// })
 							return item
 						}
 						break;
@@ -495,6 +534,90 @@ export default {
 			let url = Vue.prototype.getServiceUrl(app || uni.getStorageSync("activeApp"), srv, optionType)
 			return self.$http.post(url, req)
 		}
+		/**
+		 * 普通请求方法封装2
+		 * @param {String} optionType -操作类型(select||operate||add...)
+		 * @param {String} srv -服务名 serviceName
+		 * @param {Object} req -请求参数
+		 * @param {String} app 
+		 */
+		Vue.prototype.$fetch = async function(optionType, srv, req, app) {
+			if (!req.colNames) {
+				req.colNames = ['*']
+			}
+			if (!req.serviceName) {
+				req.serviceName = srv
+			}
+			if (!req.page) {
+				req.page = {
+					pageNo: 1,
+					rownumber: 10
+				}
+			}
+			let self = this
+			let reqType = optionType
+			if (optionType === "add" || optionType === "update") {
+				reqType = optionType
+			} else if (optionType === "select") {
+
+			}
+			let url = Vue.prototype.getServiceUrl(app || uni.getStorageSync("activeApp"), srv, optionType)
+			let res = await Vue.prototype.$http.post(url, req)
+			if (res.data.state === 'SUCCESS') {
+				// select
+				if (optionType === "select") {
+					return {
+						success: true,
+						page: res.data.page,
+						data: res.data.data
+					}
+				} else if (optionType === "multi") {
+					if (Array.isArray(res.data.data)) {
+						return {
+							success: true,
+							data: res.data.data
+						}
+					}
+				} else {
+					// update|add|delete
+					if (
+						Array.isArray(res.data.response) &&
+						res.data.response.length > 0 &&
+						res.data.response[0].response &&
+						Array.isArray(res.data.response[0].response.effect_data) &&
+						res.data.response[0].response.effect_data.length > 0
+					) {
+						return {
+							success: true,
+							data: res.data.response[0].response.effect_data
+						}
+					} else if (Array.isArray(res.data.response) &&
+						res.data.response.length > 0 &&
+						res.data.response[0].response) {
+						return {
+							success: true,
+							data: res.data.response[0].response
+						}
+					}
+				}
+			} else {
+				let result = {
+					success: false,
+					state: res.data.state,
+				}
+				if (res.data.resultCode) {
+					result.code = res.data.resultCode
+				}
+				if (res.data.resultMessage) {
+					result.msg = res.data.resultMessage
+				}
+				if (res.data.serviceInfo) {
+					result.info = res.data.serviceInfo
+				}
+				return result
+			}
+		}
+
 
 		// -------------------公共方法-------------------------------
 		/**
@@ -636,7 +759,6 @@ export default {
 		}
 
 		Vue.prototype.formateDate = function(date, type = 'date') {
-			console.log(date)
 			date = new Date(date)
 			let o = {
 				'yy': date.getFullYear(),
@@ -659,7 +781,7 @@ export default {
 				'ss': date.getSeconds()
 			};
 			if (type === 'date') {
-				return o.yy + '-' + o.MM + '-' + o.dd + ' '
+				return o.yy + '-' + o.MM + '-' + o.dd
 			} else {
 				return o.yy + '-' + o.MM + '-' + o.dd + ' ' + o.HH + ':' + o.mm + ':' + o.ss;
 			}
@@ -1012,6 +1134,7 @@ export default {
 					console.log('setWxUserInfo', response);
 					if (response.data.state === 'SUCCESS' && response.data.data && response.data.data.length >
 						0) {
+						debugger
 						Vue.prototype.wxLogin()
 						return response.data.data
 					}
@@ -1359,16 +1482,19 @@ export default {
 				}
 			}
 		}
+
+
 		Vue.prototype.verifyLogin = function(code) {
-				//验证登录(静默登录)
-				let url = Vue.prototype.$api.verifyLogin.url;
-				let req = [{
-					data: [{
-						code: code,
-						app_no: Vue.prototype.$api.appNo.wxmp
-					}],
-					serviceName: 'srvwx_app_login_verify'
-				}];
+			//验证登录(静默登录)
+			let url = Vue.prototype.$api.verifyLogin.url;
+			let req = [{
+				data: [{
+					code: code,
+					app_no: Vue.prototype.$api.appNo.wxmp
+				}],
+				serviceName: 'srvwx_app_login_verify'
+			}];
+			return new Promise((resolve, reject) => {
 				Vue.prototype.$http.post(url, req).then(response => {
 					if (response.data.resultCode === 'SUCCESS') {
 						uni.hideLoading();
@@ -1381,270 +1507,318 @@ export default {
 						uni.setStorageSync('bx_auth_ticket', resData.bx_auth_ticket);
 						if (resData.login_user_info.user_no) {
 							uni.setStorageSync('login_user_info', resData.login_user_info);
+							Vue.prototype.$store.commit('setLoginUser', resData.login_user_info)
 						}
 						uni.setStorageSync('isLogin', true);
+						resolve(resData)
 					} else if (response.data.resultCode === 'FAILURE') {
 						uni.setStorageSync('isLogin', false);
 						uni.showToast({
 							title: response.data.resultMessage,
 							icon: 'none'
 						});
+						reject(response.data)
 					}
 				});
-			},
-			Vue.prototype.getBasicsInfo = async function() {
-					let userInfo = uni.getStorageSync('login_user_info');
-					let url = Vue.prototype.getServiceUrl('zhxq', 'srvzhxq_member_select', 'select');
-					let req = {
-						serviceName: 'srvzhxq_member_select',
-						colNames: ['*'],
-						condition: [{
-							colName: 'openid',
-							value: userInfo.user_no,
-							ruleType: 'eq'
-						}],
-						page: {
-							pageNo: 1,
-							rownumber: 10
-						}
-					};
-					let res = await Vue.prototype.$http.post(url, req);
-					if (res.data.data.length > 0) {
-						uni.setStorageSync('basics_info', res.data.data[0]);
-						return res.data.data[0]
-					}
-				},
-				Vue.prototype.checkAuthorization = function() {
-					// 查看是否授权获取用户信息
-					// #ifdef MP-WEIXIN
-					uni.authorize({
-						scope: 'scope.userInfo',
-						success(res) {
-							uni.setStorageSync('isAuth', true)
-							// 获取用户信息
-							uni.getUserInfo({
-								provider: 'weixin',
-								success: function(infoRes) {
-									uni.setStorageSync('isAuth', true);
-									uni.setStorageSync('wxuserinfo', infoRes.userInfo);
-									Vue.prototype.getWxUserInfo(infoRes.userInfo);
-								},
-								fail: errMsg => {
-									uni.setStorageSync('isAuth', false)
-									console.log('获取用户信息失败失败', errMsg);
-									Vue.prototype.toLoginPage()
-								}
-							});
+			})
+		}
+		Vue.prototype.getBasicsInfo = async function() {
+			let userInfo = uni.getStorageSync('login_user_info');
+			let url = Vue.prototype.getServiceUrl('zhxq', 'srvzhxq_member_select', 'select');
+			let req = {
+				serviceName: 'srvzhxq_member_select',
+				colNames: ['*'],
+				condition: [{
+					colName: 'openid',
+					value: userInfo.user_no,
+					ruleType: 'eq'
+				}],
+				page: {
+					pageNo: 1,
+					rownumber: 10
+				}
+			};
+			let res = await Vue.prototype.$http.post(url, req);
+			if (res.data.data.length > 0) {
+				uni.setStorageSync('basics_info', res.data.data[0]);
+				return res.data.data[0]
+			}
+		}
+		Vue.prototype.checkAuthorization = function() {
+			// 查看是否授权获取用户信息
+			// #ifdef MP-WEIXIN
+			uni.authorize({
+				scope: 'scope.userInfo',
+				success(res) {
+					uni.setStorageSync('isAuth', true)
+					// 获取用户信息
+					uni.getUserInfo({
+						provider: 'weixin',
+						success: function(infoRes) {
+							uni.setStorageSync('isAuth', true);
+							uni.setStorageSync('wxuserinfo', infoRes.userInfo);
+							Vue.prototype.getWxUserInfo(infoRes.userInfo);
 						},
-						fail(errMsg) {
-							console.log('获取用户信息失败失败', errMsg);
+						fail: errMsg => {
 							uni.setStorageSync('isAuth', false)
-							uni.setStorageSync('isToLogin', false)
-							Vue.prototype.throttle(Vue.prototype.wxLogin(), 3000)
-
+							console.log('获取用户信息失败失败', errMsg);
+							debugger
+							Vue.prototype.toLoginPage()
 						}
 					});
-					// #endif
 				},
-				Vue.prototype.wxLogin = function(backUrl) {
-					wx.login({
-						success(res) {
-							if (res.code) {
-								//发起网络请求
-								Vue.prototype.verifyLogin(res.code)
-								wx.getSetting({
-									success(res) {
-										// checkAuthorization
-										let isAuthUserInfo = res.authSetting['scope.userInfo']
-										let isAuth = uni.getStorageSync('isAuth')
-										let wxuserinfo = uni.getStorageSync('wxuserinfo')
-										if (!isAuthUserInfo && !isAuth) {
-											uni.showModal({
-												title: '提示',
-												content: "请先登录",
-												success(res) {
-													uni.setStorageSync('isToLogin', true)
-													if (res.confirm) {
-														Vue.prototype.judgeClientEnviroment()
-														if (backUrl) {
-															uni.navigateTo({
-																url: '/pages/public/accountExec/accountExec?backUrl=' +
-																	backUrl
-															})
-														} else {
-															uni.navigateTo({
-																url: '/pages/public/accountExec/accountExec'
-															})
-														}
-													} else {
-														uni.setStorageSync('isAuth', false)
-														uni.setStorageSync('isToLogin', false)
-													}
-												},
-											})
-										} else if (isAuthUserInfo) {
-											wx.getUserInfo({
-												success: function(res) {
-													uni.setStorageSync('wxuserinfo', res
-														.userInfo);
-													Vue.prototype.getWxUserInfo(res
-														.userInfo);
-													// self.setWxUserInfo(res.userInfo);
-													uni.setStorageSync('isAuth', true);
-												},
-												fail: function() {
-													uni.setStorageSync('isAuth', false);
-													uni.showToast({
-														title: '未授权获取用户信息',
-														icon: 'none'
-													});
+				fail(errMsg) {
+					console.log('获取用户信息失败失败', errMsg);
+					uni.setStorageSync('isAuth', false)
+					uni.setStorageSync('isToLogin', false)
+					debugger
+					Vue.prototype.throttle(Vue.prototype.wxLogin(), 3000)
+
+				}
+			});
+			// #endif
+		}
+		Vue.prototype.wxLogin = function(backUrl) {
+			wx.login({
+				success(res) {
+					if (res.code) {
+						//发起网络请求
+						Vue.prototype.verifyLogin(res.code)
+						wx.getSetting({
+							success(res) {
+								// checkAuthorization
+								let isAuthUserInfo = res.authSetting['scope.userInfo']
+								let isAuth = uni.getStorageSync('isAuth')
+								let wxuserinfo = uni.getStorageSync('wxuserinfo')
+								if (!isAuthUserInfo && !isAuth) {
+									uni.showModal({
+										title: '提示',
+										content: "请先登录",
+										success(res) {
+											uni.setStorageSync('isToLogin', true)
+											if (res.confirm) {
+												Vue.prototype.judgeClientEnviroment()
+												if (backUrl) {
+													uni.navigateTo({
+														url: '/pages/public/accountExec/accountExec?backUrl=' +
+															backUrl
+													})
+												} else {
+													uni.navigateTo({
+														url: '/pages/public/accountExec/accountExec'
+													})
 												}
+											} else {
+												uni.setStorageSync('isAuth', false)
+												uni.setStorageSync('isToLogin', false)
+											}
+										},
+									})
+								} else if (isAuthUserInfo) {
+									wx.getUserInfo({
+										success: function(res) {
+											uni.setStorageSync('wxuserinfo', res
+												.userInfo);
+											Vue.prototype.getWxUserInfo(res
+												.userInfo);
+											// self.setWxUserInfo(res.userInfo);
+											uni.setStorageSync('isAuth', true);
+										},
+										fail: function() {
+											uni.setStorageSync('isAuth', false);
+											uni.showToast({
+												title: '未授权获取用户信息',
+												icon: 'none'
 											});
 										}
-									}
-								})
-							} else {
-								uni.showToast({
-									title: '授权失败！' + res.errMsg,
-									icon: 'none'
-								})
-							}
-						}
-					})
-				},
-				Vue.prototype.toLoginPage = function(backUrl) {
-					// if (!uni.getStorageSync('isToLogin')) {
-					// #ifdef MP-WEIXIN
-					wx.checkSession({
-						success() {
-							//session_key 未过期，并且在本生命周期一直有效
-							if (uni.getStorageSync('isLogin') === false) {
-								// 虽然session_key 未过期但是在百想后台的登录状态过期了
-								Vue.prototype.throttle(Vue.prototype.wxLogin(backUrl), 3000)
-								// Vue.prototype.wxLogin(backUrl)
-							}
-						},
-						fail() {
-							// session_key 已经失效，需要重新执行登录流程
-							//重新登录
-							Vue.prototype.throttle(Vue.prototype.wxLogin(backUrl), 3000)
-							// Vue.prototype.wxLogin(backUrl)
-						}
-					})
-					// #endif
-					// #ifdef H5
-					if (uni.getStorageSync('isLogin') === false) {
-						uni.showModal({
-							title: '提示',
-							content: "您还未登录,请先登录在进行相关操作,点击确定按钮跳转到登录页面",
-							success(res) {
-								if (res.confirm) {
-									uni.setStorageSync('isToLogin', true)
-									Vue.prototype.judgeClientEnviroment()
-									if (backUrl) {
-										uni.navigateTo({
-											url: '/pages/public/accountExec/accountExec?backUrl=' +
-												backUrl
-										})
-									} else {
-										uni.navigateTo({
-											url: '/pages/public/accountExec/accountExec'
-										})
-									}
-								} else {
-									uni.setStorageSync('isToLogin', false)
+									});
 								}
 							}
 						})
+					} else {
+						uni.showToast({
+							title: '授权失败！' + res.errMsg,
+							icon: 'none'
+						})
 					}
-					// #endif
-					// }
+				}
+			})
+		}
+		Vue.prototype.toLoginPage = function(backUrl) {
+			// if (!uni.getStorageSync('isToLogin')) {
+			// #ifdef MP-WEIXIN
+			wx.checkSession({
+				success() {
+					//session_key 未过期，并且在本生命周期一直有效
+					if (uni.getStorageSync('isLogin') === false) {
+						// 虽然session_key 未过期但是在百想后台的登录状态过期了
+						debugger
+						Vue.prototype.throttle(Vue.prototype.wxLogin(backUrl), 3000)
+						// Vue.prototype.wxLogin(backUrl)
+					}
 				},
-				Vue.prototype.selectInfoFromMember = async function() {
-						console.log('selectInfoFromMember')
-						let userInfo = uni.getStorageSync('login_user_info');
-						let wxUserInfo = uni.getStorageSync('wxuserinfo');
-						if (userInfo.openid) {
-							let url = Vue.prototype.getServiceUrl('zhxq', 'srvzhxq_member_front_select', 'select');
-							let req = {
-								serviceName: 'srvzhxq_member_front_select',
-								colNames: ['*'],
-								condition: [{
-									colName: 'openid',
-									value: userInfo.user_no,
-									ruleType: 'eq'
-								}],
-								page: {
-									pageNo: 1,
-									rownumber: 10
-								}
-							};
-							let res = await Vue.prototype.$http.post(url, req)
-							if (res.data.state === 'SUCCESS' && res.data.data.length === 0) {
-								// 基础信息表中不存在当前登录用户信息，跳转到填写基础信息表单
-								uni.showModal({
-									title: '提示',
-									content: '请完善您的基础信息',
-									showCancel: false,
-									success(res) {
-										if (res.confirm) {
-											let params = {
-												type: 'add',
-												serviceName: 'srvzhxq_member_add'
-											};
-											let cond = [{
-												"colName": "openid",
-												value: userInfo.user_no
-											}, {
-												"colName": "nick_name",
-												value: wxUserInfo.nickName
-											}, {
-												"colName": "avatar",
-												value: wxUserInfo.avatarUrl
-											}, {
-												"colName": "gender",
-												value: wxUserInfo.gender
-											}, {
-												"colName": "country",
-												value: wxUserInfo.country
-											}, {
-												"colName": "province",
-												value: wxUserInfo.province
-											}, {
-												"colName": "city",
-												value: wxUserInfo.city,
-											}]
-											uni.navigateTo({
-												url: '/pages/addInfo/addInfo?params=' + JSON.stringify(
-													params) + '&cond=' + JSON.stringify(
-													cond)
-											});
-										}
-									}
-								});
-								return false
-							} else if (res.data.state === 'SUCCESS' && res.data.data.length > 0 && res.data.data[0]
-								.islock === '是') {
-								uni.showModal({
-									title: "提示",
-									content: "当前帐号无权限访问",
-									showCancel: false,
-									confirmText: "知道了",
+				fail() {
+					// session_key 已经失效，需要重新执行登录流程
+					//重新登录
+					debugger
+					Vue.prototype.throttle(Vue.prototype.wxLogin(backUrl), 3000)
+					// Vue.prototype.wxLogin(backUrl)
+				}
+			})
+			// #endif
+			// #ifdef H5
+			if (uni.getStorageSync('isLogin') === false) {
+				uni.showModal({
+					title: '提示',
+					content: "您还未登录,请先登录在进行相关操作,点击确定按钮跳转到登录页面",
+					success(res) {
+						if (res.confirm) {
+							uni.setStorageSync('isToLogin', true)
+							Vue.prototype.judgeClientEnviroment()
+							if (backUrl) {
+								uni.navigateTo({
+									url: '/pages/public/accountExec/accountExec?backUrl=' +
+										backUrl
 								})
-								return false
-							} else return true
-
-						} else return false
-					},
-					Vue.prototype.strReplace = function(str, before, after) {
-						console.log(str, before, after)
-						if (str && before) {
-							let a = before
-							return str.replace(/[a]/g, after)
+							} else {
+								uni.navigateTo({
+									url: '/pages/public/accountExec/accountExec'
+								})
+							}
 						} else {
-							return false
+							uni.setStorageSync('isToLogin', false)
 						}
 					}
+				})
+			}
+			// #endif
+			// }
+		}
+		Vue.prototype.selectInfoFromMember = async function() {
+			console.log('selectInfoFromMember')
+			let userInfo = uni.getStorageSync('login_user_info');
+			let wxUserInfo = uni.getStorageSync('wxuserinfo');
+			if (userInfo.openid) {
+				let url = Vue.prototype.getServiceUrl('zhxq', 'srvzhxq_member_front_select', 'select');
+				let req = {
+					serviceName: 'srvzhxq_member_front_select',
+					colNames: ['*'],
+					condition: [{
+						colName: 'openid',
+						value: userInfo.user_no,
+						ruleType: 'eq'
+					}],
+					page: {
+						pageNo: 1,
+						rownumber: 10
+					}
+				};
+				let res = await Vue.prototype.$http.post(url, req)
+				if (res.data.state === 'SUCCESS' && res.data.data.length === 0) {
+					// 基础信息表中不存在当前登录用户信息，跳转到填写基础信息表单
+					uni.showModal({
+						title: '提示',
+						content: '请完善您的基础信息',
+						showCancel: false,
+						success(res) {
+							if (res.confirm) {
+								let params = {
+									type: 'add',
+									serviceName: 'srvzhxq_member_add'
+								};
+								let cond = [{
+									"colName": "openid",
+									value: userInfo.user_no
+								}, {
+									"colName": "nick_name",
+									value: wxUserInfo.nickName
+								}, {
+									"colName": "avatar",
+									value: wxUserInfo.avatarUrl
+								}, {
+									"colName": "gender",
+									value: wxUserInfo.gender
+								}, {
+									"colName": "country",
+									value: wxUserInfo.country
+								}, {
+									"colName": "province",
+									value: wxUserInfo.province
+								}, {
+									"colName": "city",
+									value: wxUserInfo.city,
+								}]
+								uni.navigateTo({
+									url: '/pages/addInfo/addInfo?params=' + JSON.stringify(
+										params) + '&cond=' + JSON.stringify(
+										cond)
+								});
+							}
+						}
+					});
+					return false
+				} else if (res.data.state === 'SUCCESS' && res.data.data.length > 0 && res.data.data[0]
+					.islock === '是') {
+					uni.showModal({
+						title: "提示",
+						content: "当前帐号无权限访问",
+						showCancel: false,
+						confirmText: "知道了",
+					})
+					return false
+				} else return true
+
+			} else return false
+		}
+		Vue.prototype.getImagePath = (no, notThumb) => {
+			if (no && (no.indexOf('http://') !== -1 || no.indexOf('https://') !== -1)) {
+				return no
+			} else if (no) {
+				if (no.indexOf('&bx_auth_ticket') !== -1) {
+					no = no.split('&bx_auth_ticket')[0]
+				}
+				if (notThumb) {
+					return api.downloadFile + no + '&bx_auth_ticket=' + uni.getStorageSync(
+						'bx_auth_ticket');
+				} else {
+					return api.downloadFile + no + '&bx_auth_ticket=' + uni.getStorageSync(
+							'bx_auth_ticket') +
+						'&thumbnailType=fwsu_100';
+				}
+			} else {
+				return ''
+			}
+		}
+		Vue.prototype.toPreviewImage = (urls) => {
+			if (!urls) {
+				return;
+			}
+			if (typeof urls === 'string') {
+				urls = [urls];
+			}
+			urls = urls.map(url => {
+				//若图片地址携带压缩图参数则预览时去掉此参数
+				return url.replace(/&thumbnailType=fwsu_100/gi, '');
+			});
+			uni.previewImage({
+				urls: urls,
+				longPressActions: {
+					itemList: ['发送给朋友', '保存图片', '收藏'],
+					success: function(data) {
+						console.log('选中了第' + (data.tapIndex + 1) + '个按钮,第' + (data.index + 1) + '张图片');
+					}
+				}
+			});
+		}
+		Vue.prototype.strReplace = function(str, before, after) {
+			console.log(str, before, after)
+			if (str && before) {
+				let a = before
+				return str.replace(/[a]/g, after)
+			} else {
+				return false
+			}
+		}
 		Vue.prototype.html2text = (str) => {
 			let strs = ""
 			if (!!str) {

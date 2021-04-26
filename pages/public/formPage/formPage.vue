@@ -3,7 +3,8 @@
 		<view class="main-table">
 			<!-- <view class="normal-title">子表</view> -->
 			<bxform ref="bxForm" :service="serviceName" :addType="addType" :pageType="type" :BxformType="type"
-				:fields="fields" :moreConfig="colsV2Data && colsV2Data.more_config ? colsV2Data.more_config : null">
+				:fields="fields" :moreConfig="colsV2Data && colsV2Data.more_config ? colsV2Data.more_config : null"
+				@value-blur="valueChange">
 			</bxform>
 		</view>
 		<view class="child-service-box" v-if="type === 'detail' && childService && childService.length > 0">
@@ -16,7 +17,7 @@
 			</view>
 		</view>
 		<view class="button-box" v-if="colsV2Data && isArray(fields) && fields.length > 0">
-			<view class="button" v-if="type === 'detail'"><button class="cu-btn bg-blue"
+			<view class="button" v-if="type === 'detail'&&showEdit"><button class="cu-btn bg-blue"
 					@click="toUpdatePages">编辑</button></view>
 			<view v-for="(item, index) in buttons" :key="index" class="button">
 				<button v-if="item.display !== false" @click="onButton(item)"
@@ -28,6 +29,9 @@
 
 <script>
 	import bxform from '@/components/bx-form/bx-form.vue';
+	import {
+		mapGetters
+	} from 'vuex'
 	export default {
 		components: {
 			bxform
@@ -35,6 +39,8 @@
 		props: {},
 		data() {
 			return {
+				from: null,
+				house_no: "",
 				fields: [],
 				buttons: [],
 				colsV2Data: null,
@@ -49,47 +55,21 @@
 			};
 		},
 		computed: {
+			...mapGetters(['wxUserInfo', 'loginUserInfo', 'staffInfo']),
 			childService() {
 				if (this.colsV2Data && Array.isArray(this.colsV2Data.child_service)) {
 					return this.colsV2Data.child_service;
 				}
 			},
-			// buttons: function() {
-			// 	let buttons = [];
-			// 	if (this.colsV2Data && this.colsV2Data._buttonInfo) {
-			// 		buttons = this.colsV2Data._buttonInfo;
-			// 	} else if (this.colsV2Data && this.colsV2Data._formButtons) {
-			// 		buttons = this.colsV2Data._formButtons;
-			// 	}
-			// 	buttons = buttons.filter(item => item.button_name !== '重置');
-			// 	console.log("buttons",buttons)
-			// let data = {};
-			// this.fields.forEach(item => {
-			// 	data[item['column']] = item['value'];
-			// });
-			// let fieldModel = data;
-			// buttons.forEach(btn => {
-			// if (btn.disp_exps) {
-			// btn['display'] = eval(btn.disp_exps);
-			// }
-			// if (btn.operate_params) {
-			// 	let fieldData = btn.operate_params['data'];
-			// 	if (fieldData && Array.isArray(fieldData) && fieldData.length > 0) {
-			// 		fieldData = fieldData[0];
-			// 		let newData = {};
-			// 		Object.keys(fieldData).forEach(data_item => {
-			// 			let item = fieldData[data_item];
-			// 			if (item.value_type && item.value_type === 'rowData') {
-			// 				newData[data_item] = fieldModel[item.value_key];
-			// 			}
-			// 		});
-			// 		btn['requestData'] = newData;
-			// 		btn['requestCondition'] = this.condition;
-			// 	}
-			// }
-			// });
-			// return buttons;
-			// }
+			showEdit() {
+				if (this.colsV2Data && Array.isArray(this.colsV2Data.formButton) && this.colsV2Data.formButton.length >
+					0) {
+					let btn = this.colsV2Data.formButton.find(item => item.button_type === 'edit')
+					if (btn && btn.permission) {
+						return true
+					}
+				}
+			},
 		},
 		created() {
 			const destApp = this.$route ? this.$route.query.destApp : '';
@@ -105,8 +85,9 @@
 				}, 1000);
 			}
 		},
-		onLoad(option) {
+		async onLoad(option) {
 			const destApp = option.destApp;
+			let self = this
 			if (destApp) {
 				uni.setStorageSync('activeApp', destApp);
 			}
@@ -131,6 +112,13 @@
 			if (option.cond) {
 				this.defaultCondition = JSON.parse(decodeURIComponent(option.cond));
 			}
+
+			if (option.from) {
+				this.from = option.from
+			}
+			if (option.house_no) {
+				this.house_no = option.house_no
+			}
 			if (option.hasOwnProperty('params')) {
 				this.serviceName = this.params.serviceName;
 				this.type = this.params.type;
@@ -142,6 +130,41 @@
 				this.type = option.type;
 				// this.getFieldsV2();
 				uni.startPullDownRefresh();
+			} else if (option.q) {
+				let text = this.getDecodeUrl(option.q);
+				if (text && text.indexOf('https://wx2.100xsys.cn/xuncha/') !== -1) {
+					let result = text.split('https://wx2.100xsys.cn/xuncha/')[1];
+					if (result.split('/').length > 0 && result.split('/')[0]) {
+						option.house_no = result.split('/')[0];
+						this.house_no = option.house_no
+						if (!this.staffInfo || !this.staffInfo.openid) {
+							let info = await this.selectManagerInfo()
+							if (!info) {
+								uni.redirectTo({
+									url: '/pages/public/home/home'
+								})
+								return
+							} else if (info === '待确认' || info === '禁用' || info === '无信息') {
+								return
+							}
+						}
+						// else{
+						let res = await self.selectHouseInfo(option.house_no)
+
+						// .then(res => {
+						if (res) {
+							option.type = 'add';
+							option.serviceName = 'srvdaq_street_check_record_add'
+							self.serviceName = option.serviceName;
+							self.type = option.type;
+							uni.startPullDownRefresh();
+						}
+						// }
+
+						// })
+
+					}
+				}
 			} else {
 				uni.showToast({
 					title: '加载错误',
@@ -150,6 +173,283 @@
 			}
 		},
 		methods: {
+			async selectStaffInfo(tel = null, real_name = null) {
+				if (this.loginUserInfo && this.loginUserInfo.openid) {
+					let req = {
+						"serviceName": "srvdaq_street_personnel_front_select",
+						"colNames": ["*"],
+						"condition": [{
+							"colName": "openid",
+							"ruleType": "eq",
+							"value": this.loginUserInfo.openid
+						}],
+						"page": {
+							"pageNo": 1,
+							"rownumber": 1
+						},
+					}
+					if (tel && real_name) {
+						req["condition"] = [{
+							"colName": "tel",
+							"ruleType": "eq",
+							"value": tel
+						}, {
+							"colName": "real_name",
+							"ruleType": "eq",
+							"value": real_name
+						}]
+					}
+					let url = this.getServiceUrl('daq', 'srvdaq_street_personnel_front_select', 'select');
+					let res = await this.$http.post(url, req)
+					if (res.data.state === 'SUCCESS' && Array.isArray(res.data.data) && res.data.data.length > 0) {
+						let staffInfo = res.data.data[0]
+						this.$store.commit('SET_STAFF_INFO', staffInfo)
+						return staffInfo.status
+					} else {
+						return false
+					}
+				} else {
+					return false
+				}
+			},
+			async selectManagerInfo() {
+				let self = this
+				let loginResult = null;
+				if (!uni.getStorageSync('isLogin')) {
+					try {
+						let codeInfo = await wx.login()
+						loginResult = await this.verifyLogin(codeInfo.code)
+					} catch (e) {
+						//TODO handle the exception
+						return
+					}
+				} else {
+					loginResult = {
+						login_user_info: this.loginUserInfo
+					}
+				}
+				if ((!this.staffInfo || !this.staffInfo.openid || this.staffInfo.status !== '正常') && loginResult &&
+					loginResult.login_user_info &&
+					loginResult.login_user_info.openid) {
+					let staffInfo = await this.selectStaffInfo()
+					if (!staffInfo) {
+						let userInfo = this.loginUserInfo
+						return new Promise((resolve) => {
+							uni.showModal({
+								title: '提示',
+								content: '请完善您的信息',
+								showCancel: false,
+								success(res) {
+									if (res.confirm) {
+										let params = {
+											type: 'add',
+											serviceName: 'srvdaq_street_personnel_add'
+										};
+										let cond = [{
+											"colName": "openid",
+											value: userInfo.openid
+										}]
+										uni.redirectTo({
+											url: '/pages/addInfo/addInfo?params=' + JSON
+												.stringify(
+													params) + '&house_no=' + self.house_no +
+												'&cond=' + JSON.stringify(
+													cond)
+										});
+										resolve('无信息')
+									} else {
+										resolve(false)
+									}
+								}
+							});
+						})
+					} else if (staffInfo === '待确认' || staffInfo === '禁用') {
+						uni.showModal({
+							title: '提示',
+							content: `您的您的账号${staffInfo==='待确认'?'信息还未被确认':'已禁用'}，请联系管理人员确认信息,点击确定跳转到首页`,
+							showCancel: false,
+							success() {
+								uni.redirectTo({
+									url: '/pages/public/home/home'
+								})
+							}
+						})
+						return staffInfo
+					} else {
+						return true
+					}
+				} else if (loginResult && loginResult.login_user_info &&
+					loginResult.login_user_info.openid) {
+					return true
+				} else {
+					return false
+				}
+			},
+			async updateHouseNumberInfo(no, data) {
+				let req = [{
+					"serviceName": "srvdaq_street_house_number_update",
+					"condition": [{
+						"colName": "house_no",
+						"ruleType": "eq",
+						"value": no
+					}],
+					"data": [data]
+				}]
+				let url = this.getServiceUrl('daq', 'srvdaq_street_house_number_update', 'operate');
+				let res = await this.$http.post(url, req)
+				if (res.data.state === 'SUCCESS') {
+					return true
+				}
+			},
+			async selectHouseInfo(no) {
+				// 根据住户编码查找住户信息
+				let req2 = {
+					"serviceName": "srvdaq_street_house_number_select",
+					"colNames": ["*"],
+					"condition": [{
+						"colName": "house_no",
+						"ruleType": "eq",
+						"value": no
+					}],
+					"page": {
+						"pageNo": 1,
+						"rownumber": 1
+					},
+				}
+				
+				let url2 = this.getServiceUrl('daq', 'srvdaq_street_house_number_select', 'select');
+
+				let res2 = await this.$http.post(url2, req2)
+				if (Array.isArray(res2.data.data) && res2.data.data.length > 0) {
+					// 房号表中有此房间号
+					let house_no_data = res2.data.data[0]
+					let req = {
+						"serviceName": "srvdaq_street_house_front_select",
+						"colNames": ["*"],
+						"condition": [{
+							"colName": "house_no",
+							"ruleType": "eq",
+							"value": no
+						}],
+						"page": {
+							"pageNo": 1,
+							"rownumber": 1
+						},
+					}
+					let url = this.getServiceUrl('daq', 'srvdaq_street_house_front_select', 'select');
+					let res = await this.$http.post(url, req)
+					if (res.data.state === 'SUCCESS') {
+						if (Array.isArray(res.data.data) && res.data.data.length > 0) {
+							let house_Data = res.data.data[0]
+							if (house_Data && house_Data.house_no && house_Data.no) {
+								if (house_no_data.status === '未使用' || house_no_data.from_no !== house_Data.no) {
+									await this.updateHouseNumberInfo(house_Data.house_no, {
+										from_no: house_Data.no,
+										status: '已使用'
+									})
+								}
+							}
+							let condition = res.data.data.map(item => {
+								return {
+									colName: 'house_no',
+									ruleType: 'eq',
+									value: item.house_no
+								}
+							})
+							condition.push({
+								colName: 'check_date',
+								ruleType: 'eq',
+								value: this.formateDate(new Date())
+							})
+							this.defaultCondition = condition
+							return true
+						} else {
+
+							// 没有查到房屋信息 跳转到房屋信息创建表单
+							return new Promise((resolve) => {
+								uni.showModal({
+									title: '提示',
+									content: '未查到当前住户信息，是否创建？',
+									success(res) {
+										if (res.confirm) {
+											uni.redirectTo({
+												url: '/pages/public/formPage/formPage?serviceName=srvdaq_street_house_add&type=add&from=qrcode&house_no=' +
+													no
+											})
+											resolve(false)
+										} else {
+											resolve(true)
+										}
+									}
+								})
+							})
+						}
+					}
+				} else {
+					uni.showModal({
+						title: '提示',
+						content: '无效的房间号，即将跳转到首页',
+						showCancel: false,
+						success() {
+							uni.reLaunch({
+								url: '/pages/public/home/home'
+							})
+						}
+					})
+					return false
+				}
+			},
+			valueChange(e) {
+				// console.log(this.fields)
+				// if (e && e.column === "check_result") {
+				// 	if (this.serviceName === 'srvdaq_street_check_record_add') {
+				// 		if (e.value === '需整改') {
+				// 			this.fields.forEach((item, index) => {
+				// 				if (['report_txt', 'report', 'check_user', 'file_no', 'remark'].includes(item
+				// 						.column) && item['display'] === false) {
+				// 					this.$set(item, 'display', true)
+				// 				}
+				// 			})
+				// 		} else {
+				// 			this.fields.forEach((item, index) => {
+				// 				if (['report_txt', 'report', 'check_user', 'file_no', 'remark'].includes(item
+				// 						.column) && item['display'] === true) {
+				// 					this.$set(item, 'display', false)
+				// 				}
+				// 			})
+				// 		}
+				// 	}
+				// }
+				// if (this.serviceName === 'srvdaq_street_personnel_exam_add' || this.serviceName ===
+				// 	'srvdaq_street_exam_add') {
+				// 	// 计算分数
+				// 	let fields = ['col_1', 'col_2', 'col_3', 'col_4', 'col_5', 'col_6', 'col_7', 'col_8', 'col_9',
+				// 		'col_10', 'col_11'
+				// 	]
+				// 	let score = 0
+				// 	this.fields.forEach(item => {
+				// 		if (e.column === item.column && e.value) {
+				// 			item.value = e.value
+				// 		}
+				// 		if (fields.includes(item.column) && item.value) {
+				// 			item.value = Number(item.value)
+				// 			if (typeof item.value === 'number' && !isNaN(item.value)) {
+				// 				score += item.value
+				// 			}
+				// 		}
+				// 	})
+				// 	let rank = score > 95 ? "优秀" : score <= 95 && score >= 80 ? "合格" : "不及格"
+				// 	this.fields = this.fields.map(item => {
+				// 		if (item.column === 'score') {
+				// 			item.value = score
+				// 		}
+				// 		if (item.column === "rank") {
+				// 			item.value = rank
+				// 		}
+				// 		return item
+				// 	})
+				// }
+			},
 			toChildServiceList(e) {
 				let data = this.deepClone(e);
 				let formData = this.params.defaultVal;
@@ -343,15 +643,37 @@
 				switch (this.type) {
 					case 'add':
 						this.fields = colVs._fieldInfo.map(field => {
+							if (this.house_no && field.column === 'house_no') {
+								field.value = this.house_no
+								field.disabled = true
+							}
+							if (this.serviceName === 'srvdaq_street_personnel_exam_add' || this.serviceName ===
+								'srvdaq_street_exam_add') {
+								// 计算分数
+								if (field.column === 'score' || field.column === "rank") {
+									field.disabled = true
+								}
+							}
+							if (this.serviceName === 'srvdaq_street_check_record_add') {
+								if (field.column === 'report_status') {
+									field.display = false
+								}
+								if (this.staffInfo && this.staffInfo.pno && field.column === 'check_user') {
+									field.value = this.staffInfo.pno
+									field.defaultValue = this.staffInfo.pno
+								}
+								if (['report_txt', 'report', 'check_user', 'file_no', 'remark'].includes(field
+										.column)) {
+									field['display'] = false;
+								}
+							}
 							if (this.defaultCondition && Array.isArray(this.defaultCondition) && colVs
 								._fieldInfo && Array.isArray(colVs._fieldInfo)) {
 								this.defaultCondition.forEach(cond => {
-									colVs._fieldInfo.forEach(field => {
-										if (cond.colName === field.column) {
-											field['value'] = cond['value'];
-											// field['disabled'] = true;
-										}
-									});
+									if (cond.colName === field.column) {
+										field['value'] = cond['value'];
+										// field['disabled'] = true;
+									}
 								});
 							}
 							if (Array.isArray(this.fieldsCond) && this.fieldsCond.length > 0) {
@@ -382,6 +704,7 @@
 				this.colsV2Data = colVs;
 			},
 			async onButton(e) {
+				let self = this
 				let req = this.$refs.bxForm.getFieldModel();
 				for (let key in req) {
 					if (!req[key]) {
@@ -427,18 +750,73 @@
 							}];
 							let app = uni.getStorageSync('activeApp');
 							let url = this.getServiceUrl(app, e.service_name, 'add');
-							let res = await this.$http.post(url, req);
-							if (res.data.state === 'SUCCESS') {
+							if (this.serviceName === 'srvdaq_street_personnel_exam_add' || this.serviceName ===
+								'srvdaq_street_exam_add') {
+								uni.showModal({
+									title: '提示',
+									content: `当前考核分数为${data.score},是否确认提交？`,
+									success(res) {
+										if (res.confirm) {
+											self.$http.post(url, req).then(result => {
+												if (result.data.state === 'SUCCESS') {
+													uni.showModal({
+														title: '提示',
+														content: '提交成功',
+														showCancel: false,
+														success() {
+															uni.navigateBack({
+
+															})
+														}
+													})
+												}
+											})
+										}
+									}
+								})
+								return
+							}
+							let result = await this.$http.post(url, req);
+							if (result.data.state === 'SUCCESS') {
 								uni.showModal({
 									title: '提示',
 									content: '添加成功',
 									showCancel: false,
 									success(res) {
 										if (res.confirm) {
+											if (self.from === 'qrcode') {
+												// 从巡查记录创建表单跳转过来的
+												if (
+													Array.isArray(result.data.response) &&
+													result.data.response.length > 0 &&
+													result.data.response[0].response &&
+													Array.isArray(result.data.response[0].response
+														.effect_data) &&
+													result.data.response[0].response.effect_data.length > 0
+												) {
+													let house_no = result.data.response[0].response
+														.effect_data[0].house_no
+													if (house_no) {
+														uni.redirectTo({
+															url: `/pages/public/formPage/formPage?q=https%3A%2F%2Fwx2.100xsys.cn%2Fxuncha%2F${house_no}`
+														})
+													}
+												}
+												return
+											}
 											uni.$emit('form-data-change', {
 												refreshWithKey: true
 											});
-											uni.navigateBack();
+											if (e.service_name === 'srvdaq_street_check_record_add') {
+												// uni.redirectTo({
+												// 	url: '/pages/public/list/list?serviceName=srvdaq_street_check_record_select&pageType=list&viewTemp={"title": "_house_no_disp","tip": "check_result","footer": "check_date"}'
+												// })
+												uni.redirectTo({
+													url: "/pages/specific/list/list"
+												})
+											} else {
+												uni.navigateBack();
+											}
 										}
 									}
 								});

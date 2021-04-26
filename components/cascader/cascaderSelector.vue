@@ -76,6 +76,7 @@ export default {
       this.getAreaData(condition, true);
     },
     async getAreaData(cond, ismore, defaultVal, index, lastListIndex) {
+			debugger
       const srvInfo = this.srvInfo;
       const serviceName = srvInfo.serviceName;
       const appName = srvInfo.appNo;

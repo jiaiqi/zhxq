@@ -183,7 +183,7 @@ export default {
 							//普通列表显示行按钮
 							//流程列表点击跳转到流程详情
 							rowButton = rowButton.filter(
-								item => item.button_type === 'edit' || item.button_type === 'delete' || item.button_type === 'procdetail' || item.button_type === 'deleteproc'
+								item => item.permission&&(item.button_type === 'edit' || item.button_type === 'delete' || item.button_type === 'procdetail' || item.button_type === 'deleteproc')
 							);
 						}
 						this.rowButton = rowButton;
@@ -328,7 +328,6 @@ export default {
 	},
 	methods: {
 		tabSelect(e, item, index) {
-			console.log(e);
 			this.TabCur = e.currentTarget.dataset.id;
 			this.scrollLeft = (e.currentTarget.dataset.id - 1) * 60;
 			this.proc_data_type = item.proc_data_type;

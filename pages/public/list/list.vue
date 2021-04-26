@@ -121,32 +121,6 @@ export default {
 		if (option.hasOwnProperty('showAdd')) {
 			this.queryOption = option;
 		}
-		if (query.serviceName == 'srvzhxq_clgl_select') {
-			let users = null;
-			this.getUserInfo().then(u => {
-				console.log('u------', u);
-				users = u;
-				let cond = [
-					{
-						colName: 'lybm',
-						ruleType: 'eq',
-						value: u.lybm
-					},
-					{
-						colName: 'dybm',
-						ruleType: 'eq',
-						value: u.dybm
-					},
-					{
-						colName: 'fwbm',
-						ruleType: 'eq',
-						value: u.fwbm
-					}
-				];
-				this.condition = [...this.condition, ...cond];
-				console.log('users=====', this.condition);
-			});
-		}
 		if (query.viewTemp) {
 			this.viewTemp = JSON.parse(query.viewTemp);
 			if (this.viewTemp.title) {
@@ -631,6 +605,9 @@ export default {
 						case 'add':
 						case 'apply':
 							this.showAdd = true;
+							if(self.serviceName==='srvdaq_street_house_select'){
+								this.showAdd = false;
+							}
 							return item;
 							break;
 						case 'select':

@@ -1,26 +1,20 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/public/index/index",
+			"path": "pages/public/home/home",
 			"style": {
-				"navigationBarTitleText": "百想AI软件平台"
-				// "navigationBarBackgroundColor": "#0bc99d"
+				"navigationBarTitleText": "首页",
+				"enablePullDownRefresh": false
 			}
 		},
-		// {
-		// 	"path": "pages/public/sitePage/sitePage",
-		// 	"style": {
-		// 		"navigationBarTitleText": "海纳智慧小区",
-		// 		"navigationBarBackgroundColor": "#0bc99d"
-		// 	}
-		// },
 		{
 			"path": "pages/public/accountExec/accountExec",
 			"style": {
 				"navigationBarTitleText": "微信登录",
-				"navigationBarBackgroundColor": "#0bc99d"
+				"navigationBarBackgroundColor": "#ffffff"
 			}
-		}, {
+		},
+		{
 			"path": "pages/public/list/list",
 			"style": {}
 		}, {
@@ -28,21 +22,11 @@
 			"style": {
 				"enablePullDownRefresh": true
 			}
-		}, {
-			"path": "pages/public/homePage/homePage",
-			"style": {
-				// "navigationBarTitleText": "海纳智慧小区",
-				"navigationBarBackgroundColor": "#0bc99d"
-			}
-		}, {
+		},
+		{
 			"path": "pages/public/proc/procList/procList",
 			"style": {
 				"navigationBarTitleText": "流程列表"
-			}
-		}, {
-			"path": "pages/public/profile/profile",
-			"style": {
-				"navigationBarTitleText": "我的"
 			}
 		}, {
 			"path": "pages/public/proc/procDetail/procDetail",
@@ -53,11 +37,6 @@
 				"navigationBarTitleText": "申请"
 			}
 		}, {
-			"path": "pages/public/shareApply/shareApply",
-			"style": {
-				"navigationBarTitleText": "邀请来访"
-			}
-		}, {
 			"path": "pages/public/shareApply/shareDetail",
 			"style": {
 				"navigationBarTitleText": "详情"
@@ -65,54 +44,87 @@
 		}, {
 			"path": "pages/public/proc/procStepDetail/procStepDetail",
 			"style": {}
-		}, {
-			"path": "pages/specific/plotSos/plotSos",
-			"style": {
-				"navigationBarTitleText": "紧急求助",
-				"navigationBarBackgroundColor": "#0bc99d"
-			}
-		},
-		{
-			"path": "pages/public/personInfo/personInfo",
-			"style": {
-				"navigationBarTitleText": "个人信息",
-				"navigationBarBackgroundColor": "#0bc99d"
-			}
-		}, {
-			"path": "pages/specific/permit/permit",
-			"style": {
-				"navigationBarTitleText": "通行证",
-				"navigationBarBackgroundColor": "#0bc99d"
-			}
 		},
 		{
 			"path": "pages/specific/article/article",
 			"style": {}
-		}, {
+		},
+		{
 			"path": "pages/specific/home/home",
 			"style": {}
 		}, {
 			"path": "pages/addInfo/addInfo",
 			"style": {}
 		}, {
-			"path": "pages/specific/shareBind/shareBind",
-			"style": {}
-		}, {
 			"path": "pages/public/webContainer/webContainer",
 			"style": {}
 		}, {
-			"path": "pages/public/oa/oa",
+			"path": "pages/specific/list/list",
 			"style": {
-				"navigationBarTitleText": "百想软件AI平台",
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/specific/list/list3",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/specific/list/list2",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": true
+			}
+		},
+
+		{
+			"path": "pages/specific/listDetail/listDetail",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/public/articleList/articleList",
+			"style": {
+				"navigationBarTitleText": "",
 				"enablePullDownRefresh": false
 			}
 
 		}
-	],
+	    ,{
+            "path" : "pages/specific/add/add",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+        ,{
+            "path" : "pages/specific/add/checkRecord/checkRecord",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+    ],
 	"globalStyle": {
-		// "navigationBarTitleText": "海纳智慧小区",
-		"navigationBarTextStyle":"black",
+		"navigationBarTextStyle": "black",
 		"navigationBarBackgroundColor": "#fff",
 		"backgroundColor": "#F8F8F8"
+	},
+	"condition": {
+		"current": 0, //当前激活的模式(list 的索引项)
+		"list": [{
+			"name": "扫描住户二维码",
+			"path": "pages/public/formPage/formPage",
+			"query": "q=https%3A%2F%2Fwx2.100xsys.cn%2Fxuncha%2FHN0001"
+		}]
 	}
 }

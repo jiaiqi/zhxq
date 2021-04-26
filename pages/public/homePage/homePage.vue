@@ -6,7 +6,6 @@
 			:class="{ 'swiper-view': pageItem.div_type === 'carousel', 'menu-view': pageItem.div_type === 'buttons', 'tab-list-view': pageItem.div_type === 'tablist' }"
 		>
 			<SwiperCarousel :swiperList="swiperList" v-if="pageItem.div_type === 'carousel'" @clickSwiper="clickSwiper" :imgCol="'picUrl'"></SwiperCarousel>
-			<!-- <SwiperMenu  v-if="pageItem.div_type === 'buttons'" :menuList="menuList" @clickMenu="clickMenu"></SwiperMenu> -->
 			<SwiperMenu v-if="pageItem.div_type === 'buttons'" :menuList="pageItem.data" :menuLabel="pageItem.item_label" :gridWidth="pageItem.grid_width" @clickMenu="clickMenu"></SwiperMenu>
 			<TabList
 				@clickListItem="clickListItem"
@@ -52,16 +51,9 @@ export default {
 					dateCol: 'create_time'
 				}
 			}
-
 			// tabsList:{}
 			// tabNewsList: [] //根据栏目分类的新闻列表
 		};
-	},
-	created() {},
-	mounted() {
-		this.isOwner = uni.getStorageSync('is_owner');
-		this.checkAuthorization()
-		console.log('mounted---------', this.is_owner);
 	},
 	onLoad(option) {
 		if (option.website_no || option.no) {
@@ -70,8 +62,8 @@ export default {
 			if (option.destApp) {
 				uni.setStorageSync('activeApp', option.destApp);
 			}
-
-			// this.webNo = option.website_no
+		}else{
+			this.webNo = 'WS2021041310440001'
 		}
 		if (this.webNo) {
 			console.log('-----onLoad-homePage-------', this.webNo);
@@ -134,7 +126,7 @@ export default {
 				this.webNo2 = stri[1]
 				uni.setStorageSync('website_no',stri[1])
 				uni.navigateTo({
-				  url: this.$api.homePath + '?website_no=WS2020060611100007&destApp=zhxq'
+				  url: this.$api.homePath + '?website_no=WS2021041310440001&destApp=daq'
 				})
 				// uni.navigateTo({
 				//   url: '/pages/public/index/index?website_no=WS2020060611100007&destApp=zhxq'
@@ -261,7 +253,6 @@ export default {
 							type: 'by'
 						}
 					]
-					// order: [{ colName: 'seq', orderType: 'asc' }] ,
 				};
 				let ress = await this.$http.post(urls, reqs);
 				if (ress.data.state === 'SUCCESS') {
@@ -284,11 +275,7 @@ export default {
 					itemList.forEach((pageitem, index) => {
 						switch (item.div_type) {
 							case 'buttons':
-								let itemLists = [];
-								// {type:'health',dest_app: '更多'},{ type: 'more', dest_app: '更多' }
-								// itemList = itemList.concat([{ type: 'health', dest_menu_no: '症状自检' }, { type: 'more', dest_menu_no: '更多' }]);
-								if (itemList.length <= 8) {
-									// itemLists = [[...itemList]];
+								let itemLists = [];if (itemList.length <= 8) {
 									itemLists = [itemList];
 								} else if (itemList.length > 8 && itemList.length <= 16) {
 									itemLists = [itemList.slice(0, 8), itemList.slice(8)];
@@ -301,11 +288,6 @@ export default {
 								pageitem['picUrl'] = this.$api.serverURL + '/file/download?fileNo=' + pageitem.carousel_image;
 								this.$set(itemList, index, pageitem);
 								this.swiperList = itemList;
-								// this.getPictureUrl(pageitem.carousel_image).then(url => {
-								//   pageitem['picUrl'] = url;
-								//   this.$set(itemList, index, pageitem);
-								//   this.swiperList = itemList;
-								// });
 								break;
 							case 'tablist':
 								// this.newsList = itemList;

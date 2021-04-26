@@ -39,7 +39,7 @@ export default {
 			newsList: [], //新闻列表
 			swiperList: [], //轮播图列表
 			categoryList: [], //分类列表
-			webNo: 'WS2020061018580009',
+			webNo: 'WS2021040620510017',
 			webNo2: '',
 			tabListConfig: {
 				srvApp: 'daq',

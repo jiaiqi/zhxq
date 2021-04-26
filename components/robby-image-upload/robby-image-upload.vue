@@ -96,7 +96,7 @@
 				
 				uni.chooseImage({
 					// camera album
-					sourceType: ['album'],
+					sourceType: ['album','camera'],
 					count: _self.limit ? (_self.limit - _self.imageList.length) : 999,
 					success: function(e){
 						console.log('选择完成',e)
@@ -117,7 +117,7 @@
 								return
 							}
 						}
-						
+						debugger
 						//检查服务器地址是否设置，设置即表示图片要上传到服务器
 						if(_self.serverUrl){
 							uni.showToast({
@@ -187,7 +187,8 @@
 									currentImages: imagePathArr,
 									allImages: _self.imageList
 								})
-								_self.$emit('input', _self.imageList)
+								// debugger
+								// _self.$emit('input', _self.imageList)
 							})
 						}else{
 							for(let i=0; i<imagePathArr.length;i++){
@@ -211,11 +212,9 @@
 				
 				//检查删除图片的服务器地址是否设置，如果设置则调用API，在服务器端删除该图片
 				console.log(imageIndex,_self.imageListData,deletedImagePath)
-				let fileUrl = deletedImagePath.substring(deletedImagePath.lastIndexOf('filePath=') + 9,deletedImagePath.length)
+				let fileUrl = deletedImagePath.substring(deletedImagePath.lastIndexOf('filePath=') + 9,deletedImagePath.length).replace('&bx_auth_ticket='+uni.getStorageSync('bx_auth_ticket'),'')
 				if(_self.serverUrlDeleteImage){
 					uni.request({
-						// fileurl: "/20200215/20200212131045939100/20200215221516207100.jpg"
-						// http://srvms.100xsys.cn:80/file/download?filePath=/20200212/20200212131045939100/20200212131045939101.jpg
 						url: _self.serverUrlDeleteImage,
 						method: 'POST',
 						header:_self.header,
