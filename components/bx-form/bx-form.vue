@@ -361,7 +361,6 @@
 						this.oldFieldModel[item.column] = item.value;
 					});
 					this.allField = fields.map((itemData, index) => {
-						debugger
 						this.fieldModel[itemData.column] = itemData.value;
 						let item = this.fieldModel;
 						if (itemData.hasOwnProperty('option_list_v2')) {
@@ -497,10 +496,8 @@
 				e.value = this.fieldModel[e.column];
 				const fieldModel = this.deepClone(this.fieldModel);
 				this.allField = this.allField.map((item, index) => {
-					item.display = item.isShowExp && item.isShowExp.length > 0 ? this.colItemShowExps(item, this
-						.fieldModel) : item.display === false ? false : true;
+					item.display = item.display === false ? false : true;
 					if (item.column === e.column) {
-						debugger
 						item.value = e.value;
 					}
 					return item;
@@ -561,34 +558,46 @@
 								}
 							}
 							this.fieldModel[item.column] = item.value;
-						}else if(item.redundant&&item.redundant.func){
-						}
+						} else if (item.redundant && item.redundant.func) {}
 					});
 				}
-				this.allField.forEach(item=>{
-					if(item.redundant&&item.redundant.func.indexOf('function checkTime')!==-1){
+				this.allField.forEach(item => {
+					// if(item.redundant&&item.redundant.func.indexOf('function checkTime')!==-1){
+					// if (this.service === 'srvdaq_street_inspect_record_add' || this.service ===
+					// 	'srvdaq_street_check_record_add') {
+						if(item.column==='report_over_time'&&item.label==='整改检查过期时间'){
 						function checkTime(i) {
 							if (i < 10) {
-								 i = "0" + i
+								i = "0" + i
 							}
 							return i;
 						}
+
 						function xxx(row) {
 							if (row.report == '当日整改完毕') {
-								let date = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1);
-								let date_value = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + checkTime(date.getHours()) + ':' + checkTime(date.getMinutes()) + ':' + checkTime(date.getSeconds());
+								let date = new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 *
+									60 * 1000 - 1);
+								let date_value = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date
+									.getDate() + ' ' + checkTime(date.getHours()) + ':' + checkTime(date
+										.getMinutes()) + ':' + checkTime(date.getSeconds());
 								return date_value;
 							}
 							if (row.report == '2日内整改完毕') {
-								let date = new Date(new Date(new Date().toLocaleDateString()).getTime() + 48 * 60 * 60 * 1000 - 1);
-								let date_value = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + checkTime(date.getHours()) + ':' + checkTime(date.getMinutes()) + ':' + checkTime(date.getSeconds());
+								let date = new Date(new Date(new Date().toLocaleDateString()).getTime() + 48 * 60 *
+									60 * 1000 - 1);
+								let date_value = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date
+									.getDate() + ' ' + checkTime(date.getHours()) + ':' + checkTime(date
+										.getMinutes()) + ':' + checkTime(date.getSeconds());
 								return date_value;
 							}
 						}
 						let result = xxx(this.fieldModel)
 						item.value = result;
 						this.fieldModel[item.column] = result
+					// }
 					}
+
+					// }
 				})
 				console.log('valueChange', e, this.fieldModel[e.column], this.fieldModel);
 				this.$emit('value-blur', e, this.fieldModel);

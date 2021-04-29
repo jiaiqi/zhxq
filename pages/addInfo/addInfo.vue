@@ -580,7 +580,12 @@
 															if (res.confirm) {
 																// self.wxLogin();
 																uni.reLaunch({
-																	url:'/pages/public/home/home'
+																	url: '/pages/public/home/home',
+																	fail() {
+																		uni.switchTab({
+																			url: '/pages/public/home/home',
+																		})
+																	}
 																})
 																// if (self.house_no) {
 																// 	uni.redirectTo({

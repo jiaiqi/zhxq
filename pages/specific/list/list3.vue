@@ -38,6 +38,14 @@
 							<image class="image" :src="pic.originUrl" v-for="pic in item.imageList"></image>
 						</view>
 					</view>
+					<view class="result-remark" v-if="item.report">
+						<view class="title">
+							整改时限
+						</view>
+						<view class="text-area result-content">
+							{{item.report||''}}
+						</view>
+					</view>
 					<view class="result-remark" v-if="item.report_txt">
 						<view class="title">
 							整改说明
@@ -49,6 +57,9 @@
 				</view>
 				<view class="item-footer" v-if="item.proc_status==='巡查结果确认'&&isVillageManage">
 					<view class="cu-bar bg-white">
+						<view class="action">
+							<text v-if="item.report">整改时限:{{item.report}}</text>
+						</view>
 						<view class="action">
 							<button class="cu-btn bg-blue shadow-blur " @click.stop="toDetail(item)">整改结果评价</button>
 						</view>
@@ -280,6 +291,11 @@
 
 			.item-footer {
 				border-top: 1px solid #f1f1f1;
+
+				.cu-bar {
+					display: flex;
+					justify-content: space-between;
+				}
 			}
 		}
 

@@ -55,7 +55,7 @@
 			};
 		},
 		computed: {
-			...mapGetters(['wxUserInfo', 'loginUserInfo', 'staffInfo']),
+			...mapGetters(['wxUserInfo', 'loginUserInfo', 'staffInfo', 'roleInfo']),
 			childService() {
 				if (this.colsV2Data && Array.isArray(this.colsV2Data.child_service)) {
 					return this.colsV2Data.child_service;
@@ -94,7 +94,6 @@
 			uni.$on('form-data-change', () => {
 				if (this.serviceName && this.type) {
 					uni.startPullDownRefresh();
-					// this.getFieldsV2();
 				}
 			});
 			if (option.fieldsCond) {
@@ -128,7 +127,6 @@
 			} else if (option.serviceName && option.type) {
 				this.serviceName = option.serviceName;
 				this.type = option.type;
-				// this.getFieldsV2();
 				uni.startPullDownRefresh();
 			} else if (option.q) {
 				let text = this.getDecodeUrl(option.q);
@@ -141,17 +139,19 @@
 							let info = await this.selectManagerInfo()
 							if (!info) {
 								uni.redirectTo({
-									url: '/pages/public/home/home'
+									url: '/pages/public/home/home',
+									fail() {
+										uni.switchTab({
+											url: '/pages/public/home/home',
+										})
+									}
 								})
 								return
 							} else if (info === '待确认' || info === '禁用' || info === '无信息') {
 								return
 							}
 						}
-						// else{
 						let res = await self.selectHouseInfo(option.house_no)
-
-						// .then(res => {
 						if (res) {
 							option.type = 'add';
 							option.serviceName = 'srvdaq_street_check_record_add'
@@ -159,10 +159,6 @@
 							self.type = option.type;
 							uni.startPullDownRefresh();
 						}
-						// }
-
-						// })
-
 					}
 				}
 			} else {
@@ -216,13 +212,13 @@
 				let self = this
 				let loginResult = null;
 				if (!uni.getStorageSync('isLogin')) {
-					try {
-						let codeInfo = await wx.login()
-						loginResult = await this.verifyLogin(codeInfo.code)
-					} catch (e) {
-						//TODO handle the exception
-						return
-					}
+					// try {
+					// 	let codeInfo = await wx.login()
+					// 	loginResult = await this.verifyLogin(codeInfo.code)
+					// } catch (e) {
+					// 	//TODO handle the exception
+					// 	return
+					// }
 				} else {
 					loginResult = {
 						login_user_info: this.loginUserInfo
@@ -316,7 +312,7 @@
 						"rownumber": 1
 					},
 				}
-				
+
 				let url2 = this.getServiceUrl('daq', 'srvdaq_street_house_number_select', 'select');
 
 				let res2 = await this.$http.post(url2, req2)
@@ -392,7 +388,12 @@
 						showCancel: false,
 						success() {
 							uni.reLaunch({
-								url: '/pages/public/home/home'
+								url: '/pages/public/home/home',
+								fail() {
+									uni.switchTab({
+										url: '/pages/public/home/home',
+									})
+								}
 							})
 						}
 					})
@@ -647,6 +648,14 @@
 								field.value = this.house_no
 								field.disabled = true
 							}
+							if (this.serviceName === 'srvdaq_street_house_add') {
+								if (this.roleInfo.streetRoadInfo) {
+									if (['road_no', 'village_no', 'street_no'].includes(field.column)) {
+										field.value = this.roleInfo.streetRoadInfo[field.column]
+										field.disabled = true
+									}
+								}
+							}
 							if (this.serviceName === 'srvdaq_street_personnel_exam_add' || this.serviceName ===
 								'srvdaq_street_exam_add') {
 								// 计算分数
@@ -799,6 +808,25 @@
 													if (house_no) {
 														uni.redirectTo({
 															url: `/pages/public/formPage/formPage?q=https%3A%2F%2Fwx2.100xsys.cn%2Fxuncha%2F${house_no}`
+														})
+													}
+												}
+												return
+											} else if (self.from === 'checkRecord') {
+												// 增加巡查记录页面
+												if (
+													Array.isArray(result.data.response) &&
+													result.data.response.length > 0 &&
+													result.data.response[0].response &&
+													Array.isArray(result.data.response[0].response
+														.effect_data) &&
+													result.data.response[0].response.effect_data.length > 0
+												) {
+													let house_no = result.data.response[0].response
+														.effect_data[0].house_no
+													if (house_no) {
+														uni.redirectTo({
+															url: `pages/specific/add/checkRecord/checkRecord?house_no=${house_no}`
 														})
 													}
 												}

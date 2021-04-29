@@ -2,12 +2,12 @@
 	<view class="authorization">
 		<view class="container"
 			v-if="isBindUser || client_env === 'web' || client_env === 'app' || client_env === 'wxmp'">
-			<view class="right-top-sign"></view>
+			<!-- <view class="right-top-sign"></view> -->
 			<!-- 设置白色背景防止软键盘把下部绝对定位元素顶上来盖住输入框等 -->
 			<view class="wrapper">
 				<!-- <view class="left-top-sign">LOGIN</view> -->
 				<view class="welcome">
-					欢迎回来！
+					<!-- 欢迎回来！ -->
 					<!-- #ifdef MP -->
 					<!-- <view v-if="client_env === 'wxmp'">点击登录按钮</view> -->
 					<!-- #endif -->
@@ -56,9 +56,9 @@
 				<!-- 		<button v-if="isBindUser" class="confirm-btn bg-green" type="primary" @click="userLogined">
 					绑定微信
 				</button> -->
-				<button v-if="isBindUser" class="confirm-btn bg-grey" @click="toBack">
+			<!-- 	<button v-if="isBindUser" class="confirm-btn bg-grey" @click="toBack">
 					暂不登录
-				</button>
+				</button> -->
 				<!-- 	<button class="confirm-btn bg-gray text-green" lang="zh_CN" type="primary" open-type="getUserInfo"
 					@getuserinfo="saveWxUser" :withCredentials="false" :disabled="disabled" v-if="!isBindUser">
 					授权登录
@@ -114,6 +114,75 @@
 			uni.$emit('isToLogin', false);
 		},
 		methods: {
+			async getVillageInfo(streetInfo = false) {
+				// 村信息
+				let req = {
+					"serviceName": "srvdaq_street_village_select",
+					"colNames": ["*"],
+					"condition": [{
+						"colName": "village_manager",
+						"ruleType": "eq",
+						"value": this.loginUserInfo.user_no
+					}],
+					"page": {
+						"pageNo": 1,
+						"rownumber": 1
+					},
+				}
+				if (streetInfo) {
+					req.condition = [{
+						"colName": "street_manager",
+						"ruleType": "eq",
+						"value": this.loginUserInfo.user_no
+					}]
+				}
+				let url = this.getServiceUrl('daq', 'srvdaq_street_village_select', 'select');
+				let res = await this.$http.post(url, req)
+				if (res.data.state === "SUCCESS" && Array.isArray(res.data.data) && res.data.data.length > 0) {
+					let villageInfo = res.data.data[0]
+					this.$store.commit('SET_VILLIAGE_INFO', villageInfo)
+					return villageInfo
+				} else return null
+			},
+			async getStreetManagerInfo() {
+				// 街道片区
+				if (this.loginUserInfo && this.loginUserInfo.user_no) {
+					let req = {
+						"serviceName": "srvdaq_street_road_select",
+						"colNames": ["*"],
+						"condition": [{
+							"colName": "street_manager",
+							"ruleType": "eq",
+							"value": this.loginUserInfo.user_no
+						}],
+						"page": {
+							"pageNo": 1,
+							"rownumber": 1
+						},
+					}
+					let url = this.getServiceUrl('daq', 'srvdaq_street_road_select', 'select');
+					let res = await this.$http.post(url, req)
+					let result = {
+						streetRoadInfo: {}, //片区
+						villageInfo: {}, // 村
+						streetInfo: {} // 街道办
+					}
+					if (res.data.state === "SUCCESS" && Array.isArray(res.data.data) && res.data.data.length > 0) {
+						let streetRoadInfo = res.data.data[0]
+						result.streetRoadInfo = streetRoadInfo
+						this.$store.commit('SET_STAFF_INFO', streetRoadInfo)
+					} else {
+						result.streetRoadInfo = null
+					}
+					const villageInfo = await this.getVillageInfo()
+					const streetInfo = await this.getVillageInfo(true)
+					result.villageInfo = villageInfo; // 村
+					result.streetInfo = streetInfo; // 街道办
+					this.$store.commit('SET_ROLE_INFO', result)
+					return result
+
+				}
+			},
 			getPhoneNumber(e) {
 				console.log(e, '手机号：');
 				console.log(e.detail.errMsg);
@@ -128,7 +197,12 @@
 						});
 					} else {
 						uni.redirectTo({
-							url: this.$api.homePath
+							url: this.$api.homePath,
+							fail() {
+								uni.switchTab({
+									url: '/pages/public/home/home'
+								})
+							}
 						});
 					}
 				} else {
@@ -452,13 +526,13 @@
 					serviceName: 'srvuser_login',
 					data: [that.user]
 				}];
-				if (that.isBindUser && e !== 'login') {
-					url = that.$api.bindWxUser;
-					req = [{
-						serviceName: 'srvwx_user_bind',
-						data: [that.user]
-					}];
-				}
+				// if (that.isBindUser && e !== 'login') {
+				// 	url = that.$api.bindWxUser;
+				// 	req = [{
+				// 		serviceName: 'srvwx_user_bind',
+				// 		data: [that.user]
+				// 	}];
+				// }
 				if (that.isInvalid(that.user.user_no) && that.isInvalid(this.user.pwd)) {
 					let response = await that.$http.post(url, req);
 					console.log('srvuser_login', response);
@@ -471,6 +545,7 @@
 						if (res.login_user_info.user_no) {
 							uni.setStorageSync('login_user_info', res.login_user_info);
 							that.$store.commit('setLoginUser', res.login_user_info);
+							await that.getStreetManagerInfo(res.login_user_info)
 							console.log('res.login_user_info', res.login_user_info);
 							if (res.login_user_info.roles) {
 								uni.setStorageSync('roles', res.login_user_info.roles);
@@ -481,13 +556,11 @@
 							that.$store.commit('setVisitorInfo', res.login_user_info.data[0]);
 						}
 						uni.setStorageSync('isLogin', true);
-						uni.showModal({
-							title: '提示',
-							content: '操作成功,即将返回首页',
-							showCancel: false,
-							success(res) {
-								uni.redirectTo({
-									url: '/pages/public/home/home'
+						uni.redirectTo({
+							url: '/pages/public/home/home',
+							fail() {
+								uni.switchTab({
+									url: '/pages/public/home/home',
 								})
 							}
 						})
@@ -599,7 +672,11 @@
 	};
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
+	page {
+		background: #fff;
+	}
+
 	.authorization {
 		width: 100%;
 		height: 100%;
@@ -634,17 +711,12 @@
 			}
 		}
 	}
-</style>
-<style lang="scss">
-	page {
-		background: #fff;
-	}
 
 	.container {
-		padding-top: 115px;
+		padding-top: 80px;
 		position: relative;
 		width: 100vw;
-		height: 100vh;
+		height: calc(100vh - var(--window-top) - var(--window-bottom));
 		overflow: hidden;
 		background: #fff;
 	}

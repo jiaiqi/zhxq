@@ -64,7 +64,7 @@
 				newsList: [], //新闻列表
 				swiperList: [], //轮播图列表
 				categoryList: [], //分类列表
-				webNo: '',
+				webNo: 'WS2021041310440001',
 				tabListConfig: {
 					srvApp: 'daq',
 					contentService: 'srvdaq_cms_content_select',
@@ -77,21 +77,30 @@
 				}
 			};
 		},
-		created() {
-			this.getStreetManagerInfo()
-		},
-		onLoad(option) {
-			if (option.website_no || option.no) {
-				// let query = JSON.parse(decodeURIComponent(option.query))
-				this.webNo = option.website_no ? option.website_no : option.no;
-				if (option.destApp) {
-					uni.setStorageSync('activeApp', option.destApp);
-				}
-			} else {
-				this.webNo = 'WS2021041310440001'
-			}
+		created() {},
+		// onLoad(option) {
+		// 	if (option.website_no || option.no) {
+		// 		// let query = JSON.parse(decodeURIComponent(option.query))
+		// 		this.webNo = option.website_no ? option.website_no : option.no;
+		// 		if (option.destApp) {
+		// 			uni.setStorageSync('activeApp', option.destApp);
+		// 		}
+		// 	} else {
+		// 		this.webNo = 'WS2021041310440001'
+		// 	}
+		// 	if (this.webNo) {
+		// 		console.log(this.roleInfo)
+		// 		this.getStreetManagerInfo().then(_ => {
+		// 			this.getPageItemList();
+		// 		})
+		// 	}
+		// },
+		onShow() {
 			if (this.webNo) {
-				this.getPageItemList();
+				console.log(this.roleInfo)
+				this.getStreetManagerInfo().then(_ => {
+					this.getPageItemList();
+				})
 			}
 		},
 		computed: {
@@ -172,7 +181,7 @@
 						let streetRoadInfo = res.data.data[0]
 						result.streetRoadInfo = streetRoadInfo
 						this.$store.commit('SET_STAFF_INFO', streetRoadInfo)
-					}else{
+					} else {
 						result.streetRoadInfo = null
 					}
 					const villageInfo = await this.getVillageInfo()
@@ -308,6 +317,12 @@
 						this.unBindWxUser()
 						return
 					}
+					if (e.dest_page === "statement") {
+						uni.navigateTo({
+							url: '/pages/specific/statement/statement'
+						})
+						return
+					}
 					if (e.dest_page === 'srvsso_user_pwd_reset') {
 						// 修改密码
 						// this.changePwd()
@@ -315,24 +330,27 @@
 						return
 					}
 				}
-				let loginResult = null;
-				if (!uni.getStorageSync('isLogin')) {
-					try {
-						let codeInfo = await wx.login()
-						loginResult = await this.verifyLogin(codeInfo.code)
-					} catch (e) {
-						//TODO handle the exception
-						return
-					}
-				} else {
-					loginResult = {
-						login_user_info: this.loginUserInfo
-					}
+
+				if (!this.loginUserInfo) {
+					uni.showModal({
+						title: '请登录',
+						content: '是否跳转到登录页面',
+						confirmText: '去登录',
+						success(res) {
+							if (res.confirm) {
+								uni.redirectTo({
+									url: '/pages/public/accountExec/accountExec?isBind=true'
+								})
+							}
+						}
+					})
+					return
 				}
 				if (!this.staffInfo || !this.staffInfo.street_manager === this.loginUserInfo.user_no) {
 					return
 				}
-				await this.getStreetManagerInfo()
+				const resultInfo = await this.getStreetManagerInfo()
+
 				if (e.dest_page.indexOf('website_no') > -1) {
 					let startStr = e.dest_page.indexOf('?')
 					let endStr = e.dest_page.indexOf('&')
@@ -349,7 +367,12 @@
 					// 点击了更多按钮
 					console.log('点击了更多按钮');
 					uni.navigateTo({
-						url: '/pages/public/home/home'
+						url: '/pages/public/home/home',
+						fail() {
+							uni.switchTab({
+								url: '/pages/public/home/home',
+							})
+						}
 					});
 				} else if (e.dest_page) {
 					if (e.dest_app) {
@@ -392,7 +415,6 @@
 			},
 			async getPageItemList() {
 				// 获取页面项列表
-				console.log('------------进入请求页面列表');
 				uni.showLoading({
 					mask: true
 				});
@@ -429,29 +451,61 @@
 								return;
 						}
 						this.getPageItem(item).then(data => {
+							if (item.div_type === 'buttons') {
+								data = data.filter(dataItem => {
+									let roleInfo = this.roleInfo
+									debugger
+									if (!this.loginUserInfo) {
+										return false
+									}
+									// if (!roleInfo || (!roleInfo.streetRoadInfo && !roleInfo
+									// 		.villageInfo && !roleInfo.streetInfo)) {
+									// 	return false
+									// }
+									// if (Array.isArray(this.loginUserInfo.roles) && this
+									// 	.loginUserInfo.roles.length === 0) {
+									// 	return
+									// }
+									if (dataItem.dest_menu_no === "街道办巡查" && !roleInfo
+										.streetInfo && !roleInfo.villageInfo) {
+											// 村长和街道办能看
+										return false
+									}
+									if (dataItem.dest_menu_no === "街长考核" && !roleInfo
+										.villageInfo && !roleInfo.streetRoadInfo) {
+											// 街长和村长能看
+										return false
+									}
+									if (dataItem.dest_menu_no === "街道考核" && !roleInfo
+										.streetInfo && !roleInfo
+										.villageInfo) {
+													// 村长和街道办能看
+										return false
+									}
+									return true
+								})
+							}
 							item['data'] = data;
 							if (item.div_type === 'buttons') {
 								console.log(this.loginUserInfo)
-								if (this.loginUserInfo.login_user_type ===
+								if (this.loginUserInfo && this.loginUserInfo.login_user_type ===
 									'user') {
 									item['data'].push({
 										display: "显示",
-										icon: 'unbind',
-										dest_menu_no: "退出登录",
-										dest_app: 'sso',
-										dest_page: 'srvwx_user_unbind',
-										id: 183,
-										seq: 1
+										icon: 'shujuzhongxin.png',
+										dest_menu_no: "报表分析",
+										dest_app: 'daq',
+										dest_page: 'statement',
 									})
-									item['data'].push({
-										display: "显示",
-										icon: 'cpwd',
-										dest_menu_no: "修改密码",
-										dest_app: 'sso',
-										dest_page: 'srvsso_user_pwd_reset',
-										id: 183,
-										seq: 1
-									})
+									// item['data'].push({
+									// 	display: "显示",
+									// 	icon: 'cpwd',
+									// 	dest_menu_no: "修改密码",
+									// 	dest_app: 'sso',
+									// 	dest_page: 'srvsso_user_pwd_reset',
+									// 	id: 183,
+									// 	seq: 1
+									// })
 								}
 							}
 							this.$set(this.pageItemList, index, item);

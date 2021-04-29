@@ -1,10 +1,10 @@
 <script>
 	import Vue from 'vue'
-	  
+
 	export default {
 		onLaunch: function() {
 			this.judgeClientEnviroment()
-			uni.setStorageSync("isThirdParty",this.$api.isThirdParty)
+			uni.setStorageSync("isThirdParty", this.$api.isThirdParty)
 			uni.getSystemInfo({
 				success: function(e) {
 					// #ifndef MP
@@ -109,76 +109,93 @@
 
 		},
 		onShow: function() {
-			if(this.$api.singleApp){
+			if (this.$api.singleApp) {
 				// uni.setStorageSync('activeApp',this.$api.appName)
-			}			
+			}
 		},
 		onHide: function() {
 			console.log('App Hide')
 		},
 		onLoad(option) {
-			console.log("app onLoad",option)
+			console.log("app onLoad", option)
 		}
 
 	}
 </script>
 
-<style lang="less">
+<style lang="scss">
 	@import "colorui/main.css";
 	@import "colorui/icon.css";
+	@import "uview-ui/index.scss";
+
 	/*每个页面公共css */
-	#app,uni-page-body,uni-page-wrapper{
+	#app,
+	uni-page-body,
+	uni-page-wrapper {
 		background: #f1f1f1 !important;
 	}
-	html,body{
+
+	html,
+	body {
 		height: auto;
 		background: #f1f1f1 !important;
 	}
-	uni-page-body>uni-view{
+
+	uni-page-body>uni-view {
 		height: 100%;
 	}
-	uni-page-wrapper,uni-page-body{
+
+	uni-page-wrapper,
+	uni-page-body {
 		min-height: calc(100vh - 44px);
 	}
+
 	// .cu-modal{
 	// 	text-align: left;
 	// }
-	.cu-card.article>.cu-item .title{
+	.cu-card.article>.cu-item .title {
 		padding: 0;
 	}
-	.uni-input-placeholder,.uni-textarea-placeholder{
+
+	.uni-input-placeholder,
+	.uni-textarea-placeholder {
 		box-sizing: border-box;
 		padding: 10upx;
 	}
+
 	.cu-form-group {
 		background-color: #ffffff;
 		padding: 1upx 30upx;
 		display: flex;
 		flex-direction: column;
 		align-items: self-start;
-		flex-grow:1;
+		flex-grow: 1;
 		min-height: 140upx;
 		justify-content: space-between;
-		.flex_row_c{
+
+		.flex_row_c {
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
 			align-items: center;
 		}
-		>uni-view{
+
+		>uni-view {
 			width: 100%;
 			box-sizing: border-box;
 			display: block;
 		}
-		uni-input{
+
+		uni-input {
 			line-height: 2.8em;
 			height: 2.8em;
 			min-height: 2.8em;
 			overflow: hidden;
-			margin:0upx;
+			margin: 0upx;
 			width: 100%;
 			padding: 0;
-			.uni-input-input{
+
+			.uni-input-input {
 				flex: 1;
 				font-size: 32upx;
 				color: #555;
@@ -187,33 +204,40 @@
 				text-indent: 0;
 				background: transparent;
 				border: 1rpx solid #d0d4d6;
-				resize:none; 
+				resize: none;
 				border-radius: 4upx;
-				outline:none;  /*清除选中效果的默认蓝色边框 */
-				-webkit-appearance:none;  /*清除浏览器默认的样式 */
-				line-height: normal;   /*光标问题*/
+				outline: none;
+				/*清除选中效果的默认蓝色边框 */
+				-webkit-appearance: none;
+				/*清除浏览器默认的样式 */
+				line-height: normal;
+				/*光标问题*/
 			}
-			.uni-input-input:focus,.uni-textarea-textarea:focus{
+
+			.uni-input-input:focus,
+			.uni-textarea-textarea:focus {
 				border: 1upx solid #0055ff;
 				color: #333333;
 				// background-color: #e9eef0;
 				border-bottom-left-radius: 1px;
 				border-bottom-right-radius: 1px;
 			}
-			&.valid_error{
-				.uni-input-input{
-					border: 1rpx solid #ff0000!important;
+
+			&.valid_error {
+				.uni-input-input {
+					border: 1rpx solid #ff0000 !important;
 				}
 			}
-			&.date-input{
-				.uni-input-wrapper{
-					.uni-input-input{
-							padding-right: 60upx!important;
+
+			&.date-input {
+				.uni-input-wrapper {
+					.uni-input-input {
+						padding-right: 60upx !important;
 					}
 				}
 			}
 		}
-		
+
 		.title {
 			// min-width: calc(4em + 15px);
 			// width: 100vw;
@@ -223,12 +247,15 @@
 			line-height: 80upx;
 			box-sizing: border-box;
 		}
-		.title.valid_error{
-			color: #ff0000!important;
+
+		.title.valid_error {
+			color: #ff0000 !important;
 		}
-		uni-textarea{
+
+		uni-textarea {
 			margin: 0;
-			.uni-textarea-textarea{
+
+			.uni-textarea-textarea {
 				flex: 1;
 				font-size: 32upx;
 				color: #555;
@@ -237,18 +264,24 @@
 				text-indent: 0;
 				background: transparent;
 				border: 1rpx solid #d0d4d6;
-				resize:none; 
+				resize: none;
 				border-radius: 4upx;
-				outline:none;  /*清除选中效果的默认蓝色边框 */
-				-webkit-appearance:none;  /*清除浏览器默认的样式 */
-				line-height: normal;   /*光标问题*/
+				outline: none;
+				/*清除选中效果的默认蓝色边框 */
+				-webkit-appearance: none;
+				/*清除浏览器默认的样式 */
+				line-height: normal;
+				/*光标问题*/
 			}
-			&.valid_error{
-				.uni-textarea-textarea{
-					border: 1rpx solid #ff0000!important;
+
+			&.valid_error {
+				.uni-textarea-textarea {
+					border: 1rpx solid #ff0000 !important;
 				}
 			}
-			.uni-input-input:focus,.uni-textarea-textarea:focus{
+
+			.uni-input-input:focus,
+			.uni-textarea-textarea:focus {
 				border: 1upx solid #0055ff;
 				color: #333333;
 				// background-color: #e9eef0;
@@ -257,53 +290,63 @@
 			}
 		}
 	}
-	
+
 	uni-checkbox-group {
-	  // width: 100%;
-	  display: flex;
-	  flex-wrap: wrap;
-	  .checkbox {
-	    // width: 30%;
-		padding: 10upx;
-	    // line-height: 80upx;
-	    text {
-	      padding-left: 20upx;
-		  span{
-		  	font-size: 1.2em;
-		  	padding: 0 10upx;
-		  }
-	    }
-	  }
-	}
-	uni-radio-group{
+		// width: 100%;
 		display: flex;
-		flex-direction: row;
-		flex-wrap:wrap;
-		width: 100%;
-		justify-content: flex-start;
-		flex: 2;
-		uni-radio{
+		flex-wrap: wrap;
+
+		.checkbox {
+			// width: 30%;
 			padding: 10upx;
-			// width: 40%;
-			.uni-radio-wrapper{
-				span{
+
+			// line-height: 80upx;
+			text {
+				padding-left: 20upx;
+
+				span {
 					font-size: 1.2em;
 					padding: 0 10upx;
 				}
 			}
 		}
 	}
-	uni-checkbox .uni-checkbox-input.uni-checkbox-input-checked{
+
+	uni-radio-group {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		width: 100%;
+		justify-content: flex-start;
+		flex: 2;
+
+		uni-radio {
+			padding: 10upx;
+
+			// width: 40%;
+			.uni-radio-wrapper {
+				span {
+					font-size: 1.2em;
+					padding: 0 10upx;
+				}
+			}
+		}
+	}
+
+	uni-checkbox .uni-checkbox-input.uni-checkbox-input-checked {
 		background-color: #0081FF;
 	}
-	uni-page-head .uni-page-head{
+
+	uni-page-head .uni-page-head {
 		display: none;
 	}
+
 	uni-app uni-page-head {
-	    // display: none;
+		// display: none;
 		display: none;
-	    box-sizing: border-box;
+		box-sizing: border-box;
 	}
+
 	// .cu-dialog{
 	// 	height: 100vh;
 	// }

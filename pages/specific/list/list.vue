@@ -1,5 +1,5 @@
 <template>
-	<view class="list-wrap">
+	<view class="list-wrap" :class="{'has-bar':roleInfo.streetRoadInfo}">
 		<view class="cu-bar fixed bg-white" v-if="roleInfo.streetRoadInfo">
 			<view class="action">
 				<button class="cu-btn bg-blue shadow-blur round add-btn" @click="toAdd">+</button>
@@ -43,6 +43,7 @@
 							<image class="image" :src="pic.originUrl" v-for="pic in item.imageList"></image>
 						</view>
 					</view>
+
 					<view class="result-remark" v-if="item.report_txt">
 						<view class="title">
 							整改说明
@@ -55,12 +56,15 @@
 				<view class="item-footer" v-if="item.proc_status==='巡查问题发布'">
 					<view class="cu-bar bg-white">
 						<view class="action">
-							<button class="cu-btn bg-blue shadow-blur " @click.stop="toDetail(item)">整改检查</button>
+							<text v-if="item.report">整改时限:{{item.report}}</text>
+						</view>
+						<view class="action">
+							<button class="cu-btn bg-blue shadow-blur " @click.stop="toDetail(item)">详情</button>
 						</view>
 					</view>
 				</view>
 				<!-- 街长已检查 第三步 -->
-		<!-- 		<view class="item-footer" v-if="item.proc_status==='巡查结果确认'">
+				<!-- 		<view class="item-footer" v-if="item.proc_status==='巡查结果确认'">
 					<view class="cu-bar bg-white">
 						<view class="action">
 							<button class="cu-btn bg-blue shadow-blur " @click.stop="toDetail(item)">整改结果评价</button>
@@ -216,6 +220,10 @@
 	.list-wrap {
 		min-height: 100vh;
 
+		&.has-bar {
+			padding-top: 50px;
+		}
+
 		// min-height: calc(100vh - var(--window-top) - var(--window-bottom));
 		.cu-bar {
 			justify-content: flex-end;
@@ -289,6 +297,10 @@
 
 			.item-footer {
 				border-top: 1px solid #f1f1f1;
+				.cu-bar{
+					display: flex;
+					justify-content: space-between;
+				}
 			}
 		}
 

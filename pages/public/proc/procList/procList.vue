@@ -20,7 +20,7 @@
 				</view>
 			</view>
 		</view>
-		<view class="public-button-box">
+		<view class="public-button-box" v-if="showAdd">
 			<view class="add-button" @click="toApply"></view>
 		</view>
 	</view>
@@ -37,6 +37,7 @@
 		},
 		data() {
 			return {
+				showAdd:false,
 				publicButton: [],
 				applyButton: {},
 				applyFormFields: [],

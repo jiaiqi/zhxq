@@ -540,7 +540,7 @@
 		},
 		mounted() {
 			let self = this;
-			if (this.fieldData.type === 'poupchange') {
+			if (this.fieldData&&this.fieldData.type === 'poupchange') {
 				this.getpoupInfo(this.fieldData.option_list_v2);
 			}
 
@@ -649,10 +649,14 @@
 						if (item.value === "top.user.user_no") {
 							item.value = this.loginUserInfo.user_no
 						}
+						if(item.value&&item.value.indexOf('data.')!==-1){
+							const data = this.fieldModelsData;
+							const key = item.value.slice(item.value.indexOf('data.')+5).trim()
+							item.value = data[key]
+						}
 						return item
-					})
+					}).filter(item=>item.value)
 				}
-				debugger
 				let res = await this.onRequest('select', serviceName, req, info.srv_app);
 				if (res.data.state === 'SUCCESS') {
 					this.oriPicker = res.data.data;
@@ -678,7 +682,6 @@
 			},
 			async getChangePoupInfo(info) {
 				//
-				debugger
 				let serviceName = info.option_list_v2.serviceName;
 				let value = '';
 				let condition = [];
@@ -737,12 +740,10 @@
 			},
 			PickerChange(e, itemFile) {
 				let self = this;
-				console.log('change----', e.detail.value);
 				this.index = e.detail.value;
 				let oriItem = this.oriPicker[e.detail.value]
 				if (oriItem && this.fieldData.srvInfo && this.fieldData.srvInfo.refed_col && oriItem[this.fieldData.srvInfo
 						.refed_col]) {
-					debugger
 					this.fieldData.value = oriItem[this.fieldData.srvInfo.refed_col]
 				}
 				this.$emit('picker-change', oriItem);
@@ -1346,6 +1347,9 @@
 				handler: function(newValue, oldValue) {
 					if (newValue.value === null) {
 						newValue.value = '';
+					}
+					if (this.fieldData.type === 'poupchange') {
+						this.getpoupInfo(this.fieldData.option_list_v2);
 					}
 					this.fieldData = newValue;
 				},

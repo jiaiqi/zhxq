@@ -234,7 +234,7 @@
 				imgList: [],
 				loadStatus: 'more', // more noMore loading
 				record_no: "",
-				radioVal: '',
+				radioVal: '已整改',
 				radioList: [{
 					label: "已整改",
 					value: "已整改"

@@ -3,18 +3,22 @@
 		<view class="add-form">
 			<view class="cu-form-group">
 				<view class="title"><text class="text-red margin-right-xs"></text>住户</view>
-				<bx-radio-group class="input" v-model="formData.house_no" mode="button">
+				<!-- 		<bx-radio-group class="input" v-model="formData.house_no" mode="button">
 					<bx-radio class="radio" color="#2979ff" v-for="item in houseList" :key="item.value"
 						:name="item.value">
 						{{ item.label }}
 					</bx-radio>
-				</bx-radio-group>
+				</bx-radio-group> -->
+				<picker class="pickers" @change="PickerChange" :value="pickerIndex" :range="pickerList">
+					<view class="uni-input">{{pickerList[pickerIndex]||"请选择"}}</view>
+				</picker>
+
 			</view>
 			<view class="cu-form-group">
 				<view class="title"><text class="text-red margin-right-xs"></text>检查日期</view>
 				<picker mode="date" v-model="formData.check_date" :disabled="true" @change="DateChange">
-					<view class="picker">
-						{{formData.check_date}}
+					<view class="uni-input">
+						{{formData.check_date||"请选择"}}
 					</view>
 				</picker>
 			</view>
@@ -114,18 +118,23 @@
 			</view>
 			<view class="cu-form-group">
 				<view class="title"><text class="text-red margin-right-xs"></text>整改时限</view>
-				<bx-radio-group class="input" v-model="formData.report" mode="button" @change="overTimeChange">
+				<!-- 		<bx-radio-group class="input" v-model="formData.report" mode="button" @change="overTimeChange">
 					<bx-radio class="radio" color="#2979ff" v-for="item in reportOption" :key="item.value"
 						:name="item.value">
 						{{ item.label }}
 					</bx-radio>
-				</bx-radio-group>
+				</bx-radio-group> -->
+
+				<picker class="pickers" @change="overTimeChange" :value="reportIndex" :range="reportOption">
+					<view class="uni-input">{{reportOption[reportIndex]||"请选择"}}</view>
+				</picker>
+
 			</view>
 			<view class="cu-form-group" v-if="formData.report_over_time">
 				<view class="title"><text class="text-red margin-right-xs"></text>整改检查过期时间</view>
 				<picker mode="date" :disabled="true" v-model="formData.report_over_time" start="2021-04-01"
 					end="2022-09-01" @change="DateChange2">
-					<view class="picker">
+					<view class="uni-input">
 						{{formData.report_over_time}}
 					</view>
 				</picker>
@@ -146,6 +155,13 @@
 	export default {
 		computed: {
 			...mapGetters(['wxUserInfo', 'loginUserInfo', 'staffInfo']),
+			pickerList() {
+				if (Array.isArray(this.houseList) && this.houseList.length > 0) {
+					return this.houseList.map(item => item.label)
+				} else {
+					return ['网络状况较差，请稍后进行选择']
+				}
+			}
 		},
 		data() {
 			return {
@@ -168,19 +184,22 @@
 					check_user: "", //街长
 					proc_status: "巡查问题发布"
 				},
-				reportOption: [{
-						label: '当日整改完毕',
-						value: '当日整改完毕'
-					},
-					{
-						label: '2日内整改完毕',
-						value: '2日内整改完毕'
-					},
-					{
-						label: '上报村街长制领导小组处理',
-						value: '上报村街长制领导小组处理'
-					}
-				],
+				// reportOption: [{
+				// 		label: '当日整改完毕',
+				// 		value: '当日整改完毕'
+				// 	},
+				// 	{
+				// 		label: '2日内整改完毕',
+				// 		value: '2日内整改完毕'
+				// 	},
+				// 	{
+				// 		label: '上报村街长制领导小组处理',
+				// 		value: '上报村街长制领导小组处理'
+				// 	}
+				// ],
+				pickerIndex: -1,
+				reportIndex: -1,
+				reportOption: ['当日整改完毕', '2日内整改完毕', '上报村街长制领导小组处理'],
 				deleteFileUrl: this.$api.deleteFile,
 				upLoadUrl: this.$api.upload,
 				reqHeader: {
@@ -208,16 +227,32 @@
 				]
 			}
 		},
+		onLoad(option) {
+			if (option.house_no) {
+				this.formData.house_no = option.house_no
+				this.pickerIndex = this.pickerList.findIndex(item => item.house_no === option.house_no)
+			}
+		},
 		created() {
 			if (this.staffInfo && this.staffInfo.road_no) {
 				this.getManageHouse()
 				this.formData.check_date = this.formateDate(new Date(), 'date')
-				// this.formData.report_user = this.loginUserInfo.user_no
 				this.formData.check_user = this.loginUserInfo.user_no
 			}
 		},
 		methods: {
-			overTimeChange(e) {
+			PickerChange(e) {
+				let self = this;
+				this.pickerIndex = e.detail.value;
+				let oriItem = this.houseList[e.detail.value]
+				if (oriItem && oriItem['no']) {
+					this.formData.house_no = oriItem['no']
+				}
+			},
+			overTimeChange(info) {
+				this.reportIndex = info.detail.value
+				const e = this.reportOption[this.reportIndex]
+				this.formData.report = e
 				if (e === '当日整改完毕') {
 					this.formData.report_over_time = dayjs().format('YYYY-MM-DD 23:59:59')
 				} else if (e === '2日内整改完毕') {
@@ -266,12 +301,19 @@
 						}],
 						"page": {
 							"pageNo": 1,
-							"rownumber": 1
+							"rownumber": 99
 						},
 					}
 					let url = this.getServiceUrl('daq', 'srvdaq_street_house_select', 'select');
 					let res = await this.$http.post(url, req)
 					if (res.data.state === 'SUCCESS') {
+						if (Array.isArray(res.data.data) && res.data.data.length === 0) {
+							// 没有住户 跳转到住户新增页面
+							uni.redirectTo({
+								url: "/pages/public/formPage/formPage?serviceName=srvdaq_street_house_add&type=add&cond=[]&from=checkRecord"
+							})
+							return
+						}
 						this.houseList = res.data.data.map(item => {
 							item.label = item.holder
 							item.value = item.no
@@ -362,6 +404,13 @@
 		min-height: 80rpx;
 		height: auto;
 		flex-wrap: wrap;
+
+		.uni-input {
+			flex: 1;
+			text-align: left;
+			line-height: 100rpx;
+			padding-left: 20rpx;
+		}
 
 		.text-area {
 			background-color: #f1f1f1;

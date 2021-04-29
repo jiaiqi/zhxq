@@ -128,7 +128,6 @@
 				let style = {};
 				if (this.parentData.width) {
 					style.width = this.parentData.width;
-					// style.width = this.$u.addUnit(this.parentData.width);
 					// #ifdef MP
 					// 各家小程序因为它们特殊的编译结构，使用float布局
 					style.float = 'left';
@@ -136,7 +135,6 @@
 					// #ifndef MP
 					// H5和APP使用flex布局
 					style.flex = `0 0 ${this.parentData.width}`;
-					// style.flex = `0 0 ${this.$u.addUnit(this.parentData.width)}`;
 					// #endif
 				}
 				if (this.parentData.wrap) {

@@ -94,26 +94,62 @@
 				"enablePullDownRefresh": false
 			}
 
+		}, {
+			"path": "pages/specific/add/add",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/specific/add/checkRecord/checkRecord",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/specific/statement/statement",
+			"style": {
+				"navigationBarTitleText": "报表分析",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/specific/mine/mine",
+			"style": {
+				"navigationBarTitleText": "我的",
+				"enablePullDownRefresh": false
+			}
+
 		}
-	    ,{
-            "path" : "pages/specific/add/add",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-        ,{
-            "path" : "pages/specific/add/checkRecord/checkRecord",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-    ],
+	],
+	"tabBar": {
+		"color": "#999", //文字颜色
+		"selectedColor": "#39B54A", //选中时文字颜色
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [{
+				"pagePath": "pages/public/home/home", //页面路径
+				"iconPath": "/static/img/home.png", //图标路径
+				"selectedIconPath": "static/img/check_home.png", //选中状态图标路径
+				"text": "首页" //显示文字
+			},
+			{
+				"pagePath": "pages/specific/mine/mine", //页面路径
+				"iconPath": "/static/img/my.png", //图标路径
+				"selectedIconPath": "static/img/check_my.png", //选中状态图标路径
+				"text": "我的" //显示文字
+			}
+		]
+	},
+	"easycom": {
+		// 下载安装的方式需要前面的"@/"，npm安装的方式无需"@/"
+		// 下载安装方式
+		"^u-(.*)": "@/uview-ui/components/u-$1/u-$1.vue"
+		// npm安装方式
+		// "^u-(.*)": "uview-ui/components/u-$1/u-$1.vue"
+	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarBackgroundColor": "#fff",

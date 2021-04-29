@@ -399,13 +399,14 @@ export default {
 					if (item.init_expr === 'new Date()') {
 						fieldInfo.defaultValue = dayjs().format('YYYY-MM-DD')
 						fieldInfo.value = dayjs().format('YYYY-MM-DD')
-						if(item.col_type=== "DateTime"){
+						if (item.col_type === "DateTime") {
 							fieldInfo.defaultValue = dayjs().format('YYYY-MM-DD HH:mm:ss')
 							fieldInfo.value = dayjs().format('YYYY-MM-DD HH:mm:ss')
 						}
 					}
 					if (item.init_expr.indexOf('top.user.user_no') !== -1) {
-						if ( uni.getStorageSync('login_user_info')&& uni.getStorageSync('login_user_info').user_no) {
+						if (uni.getStorageSync('login_user_info') && uni.getStorageSync('login_user_info')
+							.user_no) {
 							fieldInfo.defaultValue = uni.getStorageSync('login_user_info').user_no;
 							fieldInfo.value = uni.getStorageSync('login_user_info').user_no
 						}
@@ -435,7 +436,6 @@ export default {
 						if ((item.button_type === "addchild" || item.button_type === "edit" || item
 								.button_type === "delete" ||
 								item.button_type === "add") && item.permission) {
-							debugger
 							return item
 						}
 						break;
@@ -1134,8 +1134,7 @@ export default {
 					console.log('setWxUserInfo', response);
 					if (response.data.state === 'SUCCESS' && response.data.data && response.data.data.length >
 						0) {
-						debugger
-						Vue.prototype.wxLogin()
+						// Vue.prototype.wxLogin()
 						return response.data.data
 					}
 				}
@@ -1562,7 +1561,6 @@ export default {
 						fail: errMsg => {
 							uni.setStorageSync('isAuth', false)
 							console.log('获取用户信息失败失败', errMsg);
-							debugger
 							Vue.prototype.toLoginPage()
 						}
 					});
@@ -1652,7 +1650,6 @@ export default {
 					//session_key 未过期，并且在本生命周期一直有效
 					if (uni.getStorageSync('isLogin') === false) {
 						// 虽然session_key 未过期但是在百想后台的登录状态过期了
-						debugger
 						Vue.prototype.throttle(Vue.prototype.wxLogin(backUrl), 3000)
 						// Vue.prototype.wxLogin(backUrl)
 					}

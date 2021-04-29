@@ -5,9 +5,15 @@ import api from '@/common/api.js' // 导入api清单
 import common from '@/common/common.js' // 公共方法
 import bxUtil from '@/common/util.js' // 公共方法
 import fly from '@/common/http.js' // fly 请求拦截
+
+import uView from 'uview-ui';
+Vue.use(uView);
+
 // #ifdef H5
 import jwx from '@/common/jwx' // 微信JSAPI
 Vue.prototype.$jwx = jwx
+
+
 uni.setStorageSync('_appNo', api.appNo.wxh5)
 // #endif
 // #ifdef MP-WEIXIN

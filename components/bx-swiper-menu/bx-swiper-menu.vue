@@ -10,8 +10,8 @@
 				:style="{ width:gridWidth&&gridWidth<=5?100/gridWidth+'%': menuColSpan===5 ? '20%' : '25%' }">
 				<!-- <view class="menu-pic bg-blue" @click="clickMenu(item)" v-if="!item.icon">{{ item[menuTemplate['lableCol']].slice(0, 2) }}</view> -->
 				<view class="menu-pic" @click="clickMenu(item)" v-if="item.icon">
-					<image class="picture" :src=" require('./unbind.png')" mode="" v-if="item.icon==='unbind'"></image>
-					<image class="picture" :src=" require('./cpwd.png')" mode="" v-else-if="item.icon==='cpwd'"></image>
+					<!-- <image class="picture" :src=" urls + item.icon" mode="" v-if="item.icon==='unbind'"></image> -->
+					<image class="picture" :src=" require('./cpwd.png')" mode="" v-if="item.icon==='cpwd'"></image>
 					<image class="picture" :src=" urls + item.icon" mode="" v-else></image>
 				</view>
 				<view class="label">{{ item[menuTemplate['lableCol']] }}</view>

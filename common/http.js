@@ -27,16 +27,17 @@ fly.interceptors.request.use(async (request) => {
 		// mask: true,
 		title: "加载中"
 	})
-	let loginResult = null;
-	if (!uni.getStorageSync('isLogin') && request.url.indexOf('srvwx_app_login_verify') === -1) {
-		try {
-			let codeInfo = await wx.login()
-			loginResult = await Vue.prototype.verifyLogin(codeInfo.code)
-		} catch (e) {
-			//TODO handle the exception
-			return
-		}
-	}
+	// let loginResult = null;
+	// if (!uni.getStorageSync('isLogin') && request.url.indexOf('srvwx_app_login_verify') === -1) {
+	// 	debugger
+	// 	try {
+	// 		let codeInfo = await wx.login()
+	// 		loginResult = await Vue.prototype.verifyLogin(codeInfo.code)
+	// 	} catch (e) {
+	// 		//TODO handle the exception
+	// 		return
+	// 	}
+	// }
 	let _self = this
 	let bxAuthTicket = uni.getStorageSync("bx_auth_ticket")
 
