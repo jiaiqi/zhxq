@@ -167,7 +167,6 @@ export default {
 					uni.showLoading({
 						title: '正在上传中...'
 					});
-					debugger
 					for (let temp of tempFilePaths) {
 						// 图片上传服务器
 						await uni.uploadFile({

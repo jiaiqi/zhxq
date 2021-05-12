@@ -874,7 +874,6 @@
 				this.fieldData.value = '';
 			},
 			onTreeSelector(e) {
-				debugger
 				this.fieldData.value = e;
 				this.onInputChange();
 				console.log('点击了onTreeSelector', this.fieldData, e);
@@ -1090,7 +1089,6 @@
 					if (val) {
 						val['column'] = this.fieldData.column;
 						this.$emit('get-cascader-val', val);
-						debugger
 						if (this.fieldData.srvInfo.column) {
 							this.fieldData.value = val[this.fieldData.srvInfo.column];
 						} else {
@@ -1116,7 +1114,6 @@
 			},
 			onMenu(e) {
 				const data = e.item ? e.item : {};
-				debugger
 				this.fieldData.value = this.fieldData.option_list_v2 && this.fieldData.option_list_v2['refed_col'] ? data[
 					this.fieldData.option_list_v2['refed_col']] : data.no;
 				this.fieldData['colData'] = data;
@@ -1154,7 +1151,6 @@
 				});
 			},
 			getTreeSelectorDataWithKey() {
-				debugger
 				if (this.treeSearchVal) {
 					let option = this.fieldData.option_list_v2;
 					let relation_condition = {
@@ -1208,7 +1204,6 @@
 				}
 			},
 			async getTreeSelectorData(cond, serv, relation_condition) {
-				debugger
 				let self = this;
 				let req = {
 					serviceName: serv ? serv : self.fieldData.option_list_v2 ? self.fieldData.option_list_v2

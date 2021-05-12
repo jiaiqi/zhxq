@@ -206,17 +206,14 @@
 						// 两日内，当日，上报
 						break;
 				}
-				debugger
 				let result = await this.getCountData(cond, group)
 				if (Array.isArray(result)) {
 					result = result.reduce((pre, cur) => {
 						let objIndex = pre.findIndex(item => item.house_no === cur.house_no)
 						let obj = {}
 
-						debugger
 						if (objIndex !== -1) {
 							obj = pre[objIndex]
-							debugger
 							switch (this.curTab) {
 								case 0:
 									if (cur.report_status) {
@@ -251,7 +248,6 @@
 								case 2:
 									break;
 							}
-							debugger
 						}
 						obj.questNum++
 						if (objIndex !== -1) {

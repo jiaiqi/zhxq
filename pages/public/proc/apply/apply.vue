@@ -45,10 +45,10 @@
 					let res = await this.onRequest('apply', serviceName, req, this.app ? this.app : 'oa');
 					if (res.data.state === 'SUCCESS') {
 						console.log(res.data, 'res.data');
-						uni.showToast({
-							title: res.data.resultMessage,
-							icon: 'none'
-						});
+						// uni.showToast({
+						// 	title: res.data.resultMessage,
+						// 	icon: 'none'
+						// });
 						uni.showModal({
 							title: '提示',
 							content: res.data.resultMessage + ',即将返回流程列表',
@@ -58,6 +58,12 @@
 									let service_name = serviceName;
 									if (service_name.indexOf('_add')) {
 										service_name = service_name.replace('_add', '_select');
+									}
+									if(service_name==='srvdaq_street_inspect_record_select'){
+										uni.redirectTo({
+											url:'/pages/public/proc/procList/procList?query=%7B%22destApp%22%3A%22daq%22%2C%22serviceName%22%3A%22srvdaq_street_inspect_record_select%22%2C%22viewTemp%22%3A%7B%22footer%22%3A%22check_date%22%2C%22price%22%3A%22report%22%2C%22tip%22%3A%22remark%22%2C%22title%22%3A%22_village_no_disp%22%7D%7D'
+										})
+										return 
 									}
 									uni.redirectTo({
 										url: `../procList/procList?serviceName=${service_name}`

@@ -450,6 +450,9 @@
 				console.log('option----', option.query);
 				this.listConfig.query = JSON.parse(decodeURIComponent(option.query));
 			}
+			if(option.serviceName){
+				this.listConfig.serviceName = option.serviceName
+			}
 		},
 		mounted() {
 			let querysApp = '';
@@ -462,7 +465,6 @@
 			queryser = queryWx.serviceName;
 			queryViewTemp = queryWx.viewTemp;
 			// #endif
-
 
 			// #ifdef MP-WEIXIN
 			querysApp = queryWx.destApp;
@@ -494,7 +496,6 @@
 					// this.listConfig.viewTemp = JSON.parse(decodeURIComponent(queryViewTemp));
 					this.listConfig.viewTemp = queryViewTemp;
 				}
-
 				if (this.listConfig.serviceName.indexOf('issue_info') !== -1 || !queryser) {
 					this.listConfig.addService = 'srvoa_issue_info_add';
 					this.listConfig.serviceName = 'srvoa_issue_info_select';

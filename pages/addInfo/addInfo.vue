@@ -79,7 +79,6 @@
 			// #endif
 		},
 		onLoad(option) {
-			debugger
 			if (option.house_no) {
 				this.house_no = option.house_no
 			}

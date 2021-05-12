@@ -176,7 +176,6 @@
 						}]
 					};
 					const res = await this.$http.post(url, req);
-					debugger
 					if (res.data.state === 'SUCCESS') {
 						if (res.data.data.length > 0) {
 							res.data.data.length > 5 ? (res.data.data.length = 5) : '';
@@ -204,7 +203,6 @@
 
 			// #ifdef MP-WEIXIN
 			this.website_no = 'WS2021040620510017';
-			debugger
 			this.getWebsiteList();
 			// #endif
 		},

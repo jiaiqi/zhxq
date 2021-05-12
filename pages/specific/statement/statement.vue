@@ -206,7 +206,6 @@
 				let type = option.roleType === 'streetRoadInfo' ? '片区负责人' : option.roleType === 'villageInfo' ? '村长' :
 					option.roleType === 'streetInfo' ? "街道办负责人" : null
 				this.getStreetManagerInfo().then(result => {
-					debugger
 					if (result && result[option.roleType] && type) {
 						this.accountInfo = {
 							...result[option.roleType],
@@ -302,7 +301,6 @@
 				}
 				let datas = []
 				for (let item of type) {
-					debugger
 					switch (info.type) {
 						case '片区负责人':
 							cond = [{
@@ -325,6 +323,10 @@
 								colName: 'street_no',
 								ruleType: 'eq',
 								value: info.street_no
+							}]
+							group = [...group, {
+								"colName": "village_no",
+								"type": "by"
 							}]
 							break;
 						case '村长':
@@ -400,7 +402,18 @@
 					let result = await this.getCountData(cond, group)
 					if (Array.isArray(result)) {
 						result.forEach(data => {
-							let objIndex = datas.findIndex(val => val.house_no === data.house_no)
+							let objIndex = -1
+							switch (info.type) {
+								case '片区负责人':
+									objIndex = datas.findIndex(val => val.house_no === data.house_no)
+									break;
+								case '村长':
+									break;
+									objIndex = datas.findIndex(val => val.road_no === data.road_no)
+								case '街道办负责人':
+									objIndex = datas.findIndex(val => val.village_no === data.village_no)
+									break;
+							}
 							let obj = {}
 							if (this.curTab === 0) {
 								if (objIndex !== -1) {
@@ -416,6 +429,8 @@
 								} else {
 									obj = {
 										house_no: data.house_no,
+										village_no:data.village_no,
+										road_no:data.road_no,
 										questNum: 0,
 										handled: 0,
 										unhandled: 0,
@@ -445,6 +460,8 @@
 								} else {
 									obj = {
 										house_no: data.house_no,
+										village_no:data.village_no,
+										road_no:data.road_no,
 										isSure: 0,
 										noSure: 0,
 										holder: data.holder,
@@ -473,6 +490,8 @@
 								} else {
 									obj = {
 										house_no: data.house_no,
+										village_no:data.village_no,
+										road_no:data.road_no,
 										today: 0,
 										nextDay: 0,
 										up: 0,

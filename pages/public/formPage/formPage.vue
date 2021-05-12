@@ -823,10 +823,12 @@
 													result.data.response[0].response.effect_data.length > 0
 												) {
 													let house_no = result.data.response[0].response
-														.effect_data[0].house_no
+														.effect_data[0].house_no || result.data.response[0]
+														.response
+														.effect_data[0].no
 													if (house_no) {
 														uni.redirectTo({
-															url: `pages/specific/add/checkRecord/checkRecord?house_no=${house_no}`
+															url: `/pages/specific/add/checkRecord/checkRecord?house_no=${house_no}`
 														})
 													}
 												}

@@ -97,7 +97,6 @@ export default {
 			this.showSelect = true;
 		},
 		async getAreaData(cond, ismore, defaultVal, index, lastListIndex) {
-			debugger
 			const srvInfo = this.srvInfo;
 			const serviceName = srvInfo.serviceName;
 			const appName = srvInfo.appNo;

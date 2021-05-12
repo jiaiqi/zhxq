@@ -34,8 +34,6 @@ let ENV = {
 		// wxmp: 'wxce3602949765245f', //海纳小区小程序AppID
 		// wxmp: 'wx8e6f993081f6e979', //百想助理小程序
 		wxmp: 'wx93d6f482fb65baed', //百想智慧小区小程序
-		// secret:'f8576848439ead39690542a8fb0d6f7d',//派诚小程序的AppSecret
-		// secret:'a916037e0c6b887dabcb43212646001e',//百想智慧小区小程序的AppSecret
 		wxh5: ''
 	},
 	isThirdParty: remoteAddress.isThirdParty,

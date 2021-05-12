@@ -24,7 +24,7 @@
 							<view style="margin-top: 10px;"></view>
 						</view>
 					</view>
-					<view class="info-content">
+					<view class="info-content" v-if="isLogin">
 						<view class="area">
 							负责区域：
 							<view class="role-item active" @click="changeArea(index)" v-for="(role,index) in roleList"
@@ -42,16 +42,14 @@
 			</view>
 		</view>
 		<view class="content_box" v-if="loginUserInfo">
-			<view class="cu-list menu" :class="[menuBorder ? 'sm-border' : '', menuCard ? 'card-menu margin-top' : '']">
-				<view @tap="showModal('change-password')" class="cu-item arrow" v-if="loginUserInfo.login_user_type ===
-					'user'">
+			<view class="cu-list menu">
+				<view @tap="showModal('change-password')" class="cu-item arrow" v-if="isLogin">
 					<view class="content">
 						<text class="cuIcon-write png"></text>
 						<text class="text-grey">修改密码</text>
 					</view>
 				</view>
-				<view @tap="logout" class="cu-item arrow" v-if="loginUserInfo.login_user_type ===
-					'user'">
+				<view @tap="logout" class="cu-item arrow" v-if="isLogin">
 					<view class="content">
 						<text class="cuIcon-exit png"></text>
 						<text class="text-grey">退出登录</text>
@@ -90,7 +88,11 @@
 		computed: {
 			...mapGetters(['wxUserInfo', 'loginUserInfo', 'roleInfo']),
 			isLogin() {
-				return this.loginUserInfo&&this.loginUserInfo.login_user_type === 'user'
+				if(this.roleInfo&&(this.roleInfo.streetRoadInfo||this.roleInfo.villageInfo||this.roleInfo.streetInfo)){
+					return this.loginUserInfo && this.loginUserInfo.login_user_type === 'user'
+				}else{
+					return false
+				}
 			},
 			roleList() {
 				if (this.loginUserInfo && Array.isArray(this.loginUserInfo.roles)) {
@@ -263,7 +265,8 @@
 
 		.user-bg {
 			width: 100%;
-			height: 250rpx;
+			min-height: 250rpx;
+			max-height: 300rpx;
 		}
 
 		.head-wrap {
@@ -307,13 +310,14 @@
 				.area {
 					display: flex;
 					align-items: center;
+					flex-wrap: wrap;
 
 					.role-item {
-						padding: 10rpx 20rpx;
+						padding: 10rpx;
 						border-radius: 50rpx;
 						border: 1px solid #f1f1f1;
-						margin-right: 20rpx;
-
+						margin-right:10rpx;
+						margin-bottom: 10rpx;
 						&.active {
 							background-color: #007AFF;
 							color: #fff;

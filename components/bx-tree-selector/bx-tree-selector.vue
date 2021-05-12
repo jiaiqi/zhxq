@@ -450,7 +450,6 @@
 				
 			},
 			loadTreeData(e){
-				debugger
 				// 从服务器请求数据 ， 存入 原始 data =>treeDatas， 如果是tree，封装后 存入 bxtreeDatas
 				if(this.dataLoadType === "nodes"){
 					// 静态数据

@@ -235,7 +235,6 @@
 						if (item.button_type === 'add' || item.button_type === 'apply') {
 							const url = '/pages/public/proc/apply/apply?serviceName=' + item.service_name +
 								'&cond=' + decodeURIComponent(JSON.stringify(this.condition))
-							debugger
 							uni.navigateTo({
 								url: url
 							});
@@ -252,7 +251,6 @@
 							};
 							const url = '../formPage/formPage?serviceName=' + item.service_name +
 								'&type=add&cond=' + decodeURIComponent(JSON.stringify(this.condition))
-							debugger
 							uni.navigateTo({
 								url: url
 							});

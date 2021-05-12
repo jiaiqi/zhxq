@@ -208,15 +208,15 @@
 					report_file_no: '',
 					report_txt: "", // 整改说明
 					report_user: "",
-					report_status: "", //整改结果
+					report_status: "已整改", //整改结果
 					proc_status: "巡查结果确认", //步骤
 					report_time: this.formateDate(new Date(), 'full'), // 整改完检查时间
 				},
 				confirmModel: {
 					score: "", // 整改得分
 					confirm_txt: "", //整改结果确认说明
-					confirm_user: '', // 整改结果确认人
-					proc_status: "完成", //步骤
+					confirm_user: "", // 整改结果确认人
+					proc_status: "完成", // 步骤
 				},
 				deleteFileUrl: this.$api.deleteFile,
 				upLoadUrl: this.$api.upload,
@@ -287,7 +287,6 @@
 					}],
 					"data": [this.fieldModel]
 				}]
-				debugger
 				if (thirdStep) {
 					req[0].data[0] = this.confirmModel
 				}
@@ -353,7 +352,7 @@
 						}
 					}
 					this.fieldModel.report_txt = detail.report_txt
-					if(detail.proc_status==='完成'){
+					if (detail.proc_status === '完成') {
 						this.confirmModel.score = detail.score
 						this.confirmModel.confirm_txt = detail.confirm_txt
 					}

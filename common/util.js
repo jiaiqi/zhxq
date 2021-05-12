@@ -966,11 +966,16 @@ export default {
 				let isShowNum = 0
 				if (exp && exp.length > 0) {
 					for (let i = 0; i < exp.length; i++) {
-						if (exp[i].type === 'eq') {
+						let type = exp[i].type
+						exp[i].column = exp[i].column || exp[i].colName
+						if (exp[i].ruleType) {
+							type = exp[i].ruleType
+						}
+						if (type === 'eq') {
 							if (item[exp[i].column] === exp[i].value) {
 								isShowNum++
 							}
-						} else if (exp[i].type === 'neq') {
+						} else if (type === 'neq') {
 							if (item[exp[i].column] !== exp[i].value) {
 								isShowNum++
 							}
@@ -1569,7 +1574,6 @@ export default {
 					console.log('获取用户信息失败失败', errMsg);
 					uni.setStorageSync('isAuth', false)
 					uni.setStorageSync('isToLogin', false)
-					debugger
 					Vue.prototype.throttle(Vue.prototype.wxLogin(), 3000)
 
 				}
@@ -1657,7 +1661,6 @@ export default {
 				fail() {
 					// session_key 已经失效，需要重新执行登录流程
 					//重新登录
-					debugger
 					Vue.prototype.throttle(Vue.prototype.wxLogin(backUrl), 3000)
 					// Vue.prototype.wxLogin(backUrl)
 				}

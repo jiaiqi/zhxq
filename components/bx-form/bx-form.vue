@@ -268,7 +268,6 @@
 					}
 				});
 			},
-			setShowExp() {},
 			async setCallbackColumnValue(serviceCall, condition) {
 				let url = this.getServiceUrl(serviceCall.app, serviceCall.service, 'select');
 				let req = {
@@ -387,11 +386,11 @@
 							}
 						}
 						if (itemData.hasOwnProperty('isShowExp') && item.hasOwnProperty(itemData.column)) {
-							itemData['showExp'] = this.evalInTo(itemData, item);
-							itemData['display'] =
-								itemData.isShowExp && itemData.isShowExp.length > 0 ? this.colItemShowExps(
-									itemData, item) && itemData.display : itemData.display === false ? false :
-								true;
+							itemData['showExp'] = this.colItemShowExps(itemData, item);
+							itemData['display'] = itemData['showExp'];
+							// itemData['display'] =  itemData.isShowExp && itemData.isShowExp.length > 0 ? this.colItemShowExps(
+							// 		itemData, item) && itemData.display : itemData.display === false ? false :
+							// 	true;
 						} else {
 							itemData['showExp'] = itemData['showExp'] || true;
 						}

@@ -318,7 +318,6 @@ export default {
     },
     decodeTreePath(e) {
       // 初始化解析树形数据，根据所选 node data，遍历，上级path node 并存入 selectedPathNodeDatas
-			debugger
       let path = e.path;
       let nodeNo = path.split('/');
       nodeNo = nodeNo.filter(item => item !== '');
@@ -412,7 +411,6 @@ export default {
       }
     },
     loadTreeData(e) {
-			debugger
       // 从服务器请求数据 ， 存入 原始 data =>treeDatas， 如果是tree，封装后 存入 bxtreeDatas
       if (this.dataLoadType === 'nodes') {
         // 静态数据

@@ -454,7 +454,6 @@
 							if (item.div_type === 'buttons') {
 								data = data.filter(dataItem => {
 									let roleInfo = this.roleInfo
-									debugger
 									if (!this.loginUserInfo) {
 										return false
 									}
