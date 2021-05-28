@@ -224,8 +224,8 @@
 	.bx-radio {
 		display: flex;
 		align-items: center;
-		padding: 10rpx;
-
+		padding: 20rpx;
+		margin-right: 20rpx;
 		.bx-radio-icon {
 			width: 40rpx;
 			height: 40rpx;
@@ -237,7 +237,7 @@
 			justify-content: center;
 			align-items: center;
 			font-size: 24rpx;
-
+			transform: scale(1.3);
 			&.checked.has-char {
 				border: none;
 				background-color: #007aff;

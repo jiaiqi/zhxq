@@ -96,7 +96,8 @@
 				
 				uni.chooseImage({
 					// camera album
-					sourceType: ['album','camera'],
+					sourceType: ['camera'],
+					// sourceType: ['album','camera'],
 					count: _self.limit ? (_self.limit - _self.imageList.length) : 999,
 					success: function(e){
 						console.log('选择完成',e)

@@ -457,17 +457,13 @@
 									if (!this.loginUserInfo) {
 										return false
 									}
-									// if (!roleInfo || (!roleInfo.streetRoadInfo && !roleInfo
-									// 		.villageInfo && !roleInfo.streetInfo)) {
-									// 	return false
-									// }
-									// if (Array.isArray(this.loginUserInfo.roles) && this
-									// 	.loginUserInfo.roles.length === 0) {
-									// 	return
-									// }
 									if (dataItem.dest_menu_no === "街道办巡查" && !roleInfo
 										.streetInfo && !roleInfo.villageInfo) {
 											// 村长和街道办能看
+										return false
+									}
+									if (dataItem.dest_menu_no === "上报记录"&& !roleInfo.villageInfo) {
+											// 村长能看
 										return false
 									}
 									if (dataItem.dest_menu_no === "街长考核" && !roleInfo

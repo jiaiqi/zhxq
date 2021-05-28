@@ -154,7 +154,7 @@
 	} from 'vuex'
 	export default {
 		computed: {
-			...mapGetters(['wxUserInfo', 'loginUserInfo', 'staffInfo']),
+			...mapGetters(['wxUserInfo', 'loginUserInfo', 'roleInfo']),
 			pickerList() {
 				if (Array.isArray(this.houseList) && this.houseList.length > 0) {
 					return this.houseList.map(item => item.label)

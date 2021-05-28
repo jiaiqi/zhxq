@@ -254,6 +254,7 @@ export default {
 						}
 					]
 				};
+				debugger
 				let ress = await this.$http.post(urls, reqs);
 				if (ress.data.state === 'SUCCESS') {
 					this.categoryList = ress.data.data;
