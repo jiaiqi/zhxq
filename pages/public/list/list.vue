@@ -458,6 +458,11 @@
 					// if (item.permission === true) {
 					switch (item.button_type) {
 						case 'add':
+						if(self.serviceName==='srvdaq_street_exam_select'){
+							if(!self.streetInfo.streetInfo){
+								this.showAdd = false
+							}
+						}
 						case 'apply':
 							this.showAdd = true;
 							if (self.serviceName === 'srvdaq_street_house_select') {
@@ -484,11 +489,6 @@
 				return colVs;
 			}
 		},
-
-		onShareAppMessage(res) {},
-		onShareTimeline(res) {
-			console.log(res);
-		}
 	};
 </script>
 

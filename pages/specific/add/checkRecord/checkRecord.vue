@@ -1,5 +1,11 @@
 <template>
 	<view>
+		<view class="road-info bg-blue">
+			{{roadInfo||''}}
+		</view>
+		<view class="road-info bg-blue" v-if="loginUserInfo.real_name||loginUserInfo.user_disp">
+			负责人：{{loginUserInfo.real_name||loginUserInfo.user_disp}}
+		</view>
 		<view class="add-form">
 			<view class="cu-form-group">
 				<view class="title"><text class="text-red margin-right-xs"></text>住户</view>
@@ -161,6 +167,11 @@
 				} else {
 					return ['网络状况较差，请稍后进行选择']
 				}
+			},
+			roadInfo(){
+				if(this.staffInfo.id){
+					return this.staffInfo?._street_no_disp+this.staffInfo?._village_no_disp+this.staffInfo?.road_name
+				}
 			}
 		},
 		data() {
@@ -184,19 +195,7 @@
 					check_user: "", //街长
 					proc_status: "巡查问题发布"
 				},
-				// reportOption: [{
-				// 		label: '当日整改完毕',
-				// 		value: '当日整改完毕'
-				// 	},
-				// 	{
-				// 		label: '2日内整改完毕',
-				// 		value: '2日内整改完毕'
-				// 	},
-				// 	{
-				// 		label: '上报村街长制领导小组处理',
-				// 		value: '上报村街长制领导小组处理'
-				// 	}
-				// ],
+				staffInfo:{}, //街长信息
 				pickerIndex: -1,
 				reportIndex: -1,
 				reportOption: ['当日整改完毕', '2日内整改完毕', '上报村街长制领导小组处理'],
@@ -232,8 +231,20 @@
 				this.formData.house_no = option.house_no
 				this.pickerIndex = this.pickerList.findIndex(item => item.house_no === option.house_no)
 			}
+			if(this.loginUserInfo?.user_disp){
+				uni.setNavigationBarTitle({
+					title:this.loginUserInfo.user_disp
+				})
+			}else if(this.loginUserInfo?.real_name){
+				uni.setNavigationBarTitle({
+					title:this.loginUserInfo.real_name
+				})
+			}
 		},
 		created() {
+			if(this.roleInfo?.streetRoadInfo?.road_no){
+				this.staffInfo = this.roleInfo?.streetRoadInfo
+			}
 			if (this.staffInfo && this.staffInfo.road_no) {
 				this.getManageHouse()
 				this.formData.check_date = this.formateDate(new Date(), 'date')
@@ -396,6 +407,10 @@
 	// 	display: flex;
 	// 	flex-wrap: wrap;
 	// }
+	.road-info{
+		padding: 10rpx;
+		text-align: center;
+	}
 	.cu-form-group {
 		display: flex;
 		flex-direction: row;
