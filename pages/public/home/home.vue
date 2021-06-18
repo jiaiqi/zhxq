@@ -13,6 +13,7 @@
 				:menuLabel="pageItem.item_label"
 				:gridWidth="pageItem.grid_width"
 				@clickMenu="clickMenu"
+				:bg-color="bgColor"
 			></SwiperMenu>
 			<TabList
 				@clickListItem="clickListItem"
@@ -116,6 +117,19 @@ export default {
 	},
 	computed: {
 		...mapGetters(['wxUserInfo', 'loginUserInfo', 'staffInfo', 'roleInfo']),
+		bgColor(){
+			if(this.roleInfo){
+				if(this.roleInfo.streetInfo){
+					return '#AFE2F7'
+				}
+				if(this.roleInfo.villageInfo){
+					return '#EFF6CC'
+				}
+				if(this.roleInfo.streetRoadInfo){
+					return '#D3F4CE'
+				}
+			}
+		},
 		tabNewsList() {
 			//根据栏目分类的新闻列表
 			let NewsList = [];
@@ -486,16 +500,16 @@ export default {
 									// 村长和街长能看
 									return false;
 								}
-								if (['巡查记录'].includes(dataItem.dest_menu_no) && !roleInfo.streetRoadInfo) {
+								if (['巡查记录','住户管理'].includes(dataItem.dest_menu_no) && !roleInfo.streetRoadInfo) {
 									// 街长能看
+									return false;
+								}
+								if (['巡查记录','住户管理'].includes(dataItem.dest_menu_no) && !!roleInfo.villageInfo) {
+									// 街长能看 村长不能看
 									return false;
 								}
 								if (dataItem.dest_menu_no === '上报记录' && !roleInfo.villageInfo) {
 									// 村长能看
-									return false;
-								}
-								if (dataItem.dest_menu_no === '住户管理' && !roleInfo.streetRoadInfo) {
-									// 街长能看
 									return false;
 								}
 								return true;

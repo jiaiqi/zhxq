@@ -4,7 +4,9 @@
 			<view class="text">{{ menuLabel }}</view>
 		</view>
 
-		<view class="bg-white  menu-item" v-if="menus&&Array.isArray(menus)&&menus.length <= 10">
+		<view class="bg-white  menu-item" :style="{
+			'background-color':bgColor
+		}" v-if="menus&&Array.isArray(menus)&&menus.length <= 10">
 			<view :class="{ 'bg-imgs': !item.icon, 'menu-image': item.icon }" v-for="(item, index) in menus"
 				:key="index"
 				:style="{ width:gridWidth&&gridWidth<=5?100/gridWidth+'%': menuColSpan===5 ? '20%' : '25%' }">
@@ -63,6 +65,10 @@
 			},
 			config: {
 				type: Object
+			},
+			bgColor:{
+				type: String,
+				default: ''
 			},
 			menuTemplate: {
 				type: Object,
