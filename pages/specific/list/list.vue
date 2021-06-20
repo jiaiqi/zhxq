@@ -9,6 +9,9 @@
 					<view class="item-title">
 						<view class="label">户主:</view>
 						<view class="value">{{ item._house_no_disp || item.holder || '' }}</view>
+						<view class="" v-if="item._road_no_disp">
+							,{{item._road_no_disp||''}}
+						</view>
 					</view>
 					<view class="item-title">
 						<view class="label">检查日期:</view>
