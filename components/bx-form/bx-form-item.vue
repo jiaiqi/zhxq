@@ -19,8 +19,6 @@
 			<!-- 图片描述 -->
 			<block class="img-explain" v-if="fieldData.option_img_explain">
 				<view class="option_img_explain" @click="showOption_img = !showOption_img">
-					<!-- 					<u-icon name="play-right-fill" color="#666" size="28" v-if="!showOption_img"></u-icon>
-					<u-icon name="arrow-down-fill" color="#666" size="28" v-if="showOption_img"></u-icon> -->
 					<text class="margin-left-xs">图片描述</text>
 				</view>
 				<image width="100%" height="300rpx" :src="getOptionImgExplain(fieldData.option_img_explain)"
@@ -540,9 +538,9 @@
 		},
 		mounted() {
 			let self = this;
-			if (this.fieldData&&this.fieldData.type === 'poupchange') {
-				this.getpoupInfo(this.fieldData.option_list_v2);
-			}
+			// if (this.fieldData && this.fieldData.type === 'poupchange') {
+			// 	this.getpoupInfo(this.fieldData.option_list_v2);
+			// }
 
 			if (this.field.condition && Array.isArray(this.field.condition)) {
 				// this.field.condition.forEach()
@@ -636,7 +634,8 @@
 					return this.$api.downloadFile + e + '&bx_auth_ticket=' + uni.getStorageSync('bx_auth_ticket');
 				}
 			},
-			async getpoupInfo(info) {
+			async getpoupInfo() {
+				let info = this.fieldData.option_list_v2
 				let self = this
 				let serviceName = info.serviceName;
 				let req = {
@@ -646,16 +645,23 @@
 				};
 				if (info.conditions) {
 					req.condition = info.conditions.map(item => {
+						const data = this.fieldsModel;
 						if (item.value === "top.user.user_no") {
+							item.valueRule = "top.user.user_no"
 							item.value = this.loginUserInfo.user_no
 						}
-						if(item.value&&item.value.indexOf('data.')!==-1){
-							const data = this.fieldModelsData;
-							const key = item.value.slice(item.value.indexOf('data.')+5).trim()
+						if (item.value && item.value.indexOf('data.') !== -1) {
+							item.valueRule = item.value
+							const key = item.value.slice(item.value.indexOf('data.') + 5).trim()
 							item.value = data[key]
 						}
+						if (item.valueRule && item.valueRule.indexOf('data.') !== -1) {
+							const key = item.valueRule.slice(item.valueRule.indexOf('data.') + 5).trim()
+							item.value = data[key]
+						}
+						// delete item.valueRule
 						return item
-					}).filter(item=>item.value)
+					}).filter(item => item.value)
 				}
 				let res = await this.onRequest('select', serviceName, req, info.srv_app);
 				if (res.data.state === 'SUCCESS') {
@@ -740,12 +746,15 @@
 			},
 			PickerChange(e, itemFile) {
 				let self = this;
+				
 				this.index = e.detail.value;
 				let oriItem = this.oriPicker[e.detail.value]
 				if (oriItem && this.fieldData.srvInfo && this.fieldData.srvInfo.refed_col && oriItem[this.fieldData.srvInfo
 						.refed_col]) {
 					this.fieldData.value = oriItem[this.fieldData.srvInfo.refed_col]
 				}
+				this.fieldData['colData'] = oriItem;
+				this.$emit('on-value-change', this.fieldData);
 				this.$emit('picker-change', oriItem);
 			},
 			changeVal(newval, oldval, index) {
@@ -1343,9 +1352,9 @@
 					if (newValue.value === null) {
 						newValue.value = '';
 					}
-					if (this.fieldData.type === 'poupchange') {
-						this.getpoupInfo(this.fieldData.option_list_v2);
-					}
+					// if (this.fieldData.type === 'poupchange') {
+					// 	this.getpoupInfo(this.fieldData.option_list_v2);
+					// }
 					this.fieldData = newValue;
 				},
 				immediate: true,
@@ -1364,18 +1373,11 @@
 			},
 			fieldsModel: {
 				handler: function(newValue, oldValue) {
-					console.log('fieldsModel--------', newValue);
-					// this.modelData = JSON.parse(JSON.stringify(newValue))
-					// console.log('this.modelData........', this.modelData);
-					//    if(self.fieldData.type === "list"){
-					//  let listItemModel =  self.fieldData.optionsConfig.model
-					//  let colKey = self.fieldData.optionsConfig.conditions
-					//  for(let i = 0;i<colKey.length;i++){
-					// 	 listItemModel[colKey[i].colName] = newValue[colKey[i].value]
-					//  }
-					//  self.listChildModel = listItemModel
-					// }
+					if (this.fieldData.type === 'poupchange'&&!this.fieldData.value) {
+						this.getpoupInfo(this.fieldData.option_list_v2);
+					}
 				},
+				immediate: true,
 				deep: true
 			}
 		}

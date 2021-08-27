@@ -169,10 +169,12 @@
 				const req = {
 					serviceName: this.contentService,
 					colNames: ['*'],
-					order:[{
+					order:[
+						{
 						colName:'seq',
 						"orderType": "asc" // asc升序  desc降序
-					}],
+					},
+					],
 					condition: [{
 						colName: 'no',
 						value: cate_no,

@@ -411,18 +411,8 @@
 								special.display ? (itemData['display'] = special.display) : '';
 							}
 						});
-						/*针对添加我的食物时对餐馆编号隐藏*/
-						if (this.addType && (itemData.column === 'restaurant_no' || itemData.column === 'price' ||
-								itemData.column === 'mark')) {
-							itemData['display'] = false;
-						}
-						if (this.service && this.service.indexOf('srvhealth_mixed_food_nutrition_contents') > -1 &&
-							itemData.column === 'owner') {
-							itemData['display'] = false;
-						}
 						return itemData;
 					});
-					console.log('0000000000000000', this.allField);
 				}
 			},
 			onValChange(e) {
@@ -480,17 +470,6 @@
 						}
 						return item
 					})
-				}
-
-				/*争对食材选择冗余做单独处理*/
-				if (e.column === 'food_no' && e.type === 'treeSelector' && typeof e.colData === 'object') {
-					this.allField.forEach(hea => {
-						if (hea.column === 'unit') {
-							hea.value = e.colData.unit;
-						} else if (hea.column === 'name') {
-							hea.value = e.colData.name;
-						}
-					});
 				}
 				e.value = this.fieldModel[e.column];
 				const fieldModel = this.deepClone(this.fieldModel);
@@ -561,9 +540,6 @@
 					});
 				}
 				this.allField.forEach(item => {
-					// if(item.redundant&&item.redundant.func.indexOf('function checkTime')!==-1){
-					// if (this.service === 'srvdaq_street_inspect_record_add' || this.service ===
-					// 	'srvdaq_street_check_record_add') {
 						if(item.column==='report_over_time'&&item.label==='整改检查过期时间'){
 						function checkTime(i) {
 							if (i < 10) {

@@ -13,6 +13,9 @@
 			<!-- 所有内容的容器 -->
 			<view class="table-header">
 				<view class="table-header-item">
+					上报人
+				</view>
+				<view class="table-header-item">
 					<!-- 住户 -->
 					<text v-if="roleType==='streetRoadInfo'">住户</text>
 					<text v-if="roleType==='villageInfo'">街片区</text>
@@ -47,6 +50,9 @@
 				<view class="table-content-item" v-for="item in listData" :key="item.house_no">
 					<view class="table-header" v-if="curTab===0">
 						<view class="table-header-item">
+							{{item._check_user_disp||''}}
+						</view>
+						<view class="table-header-item">
 							{{item.holder||item._road_no_disp||item._village_no_disp}}
 						</view>
 						<view class="table-header-item">
@@ -61,6 +67,9 @@
 					</view>
 					<view class="table-header" v-if="curTab===1">
 						<view class="table-header-item">
+							{{item._check_user_disp||''}}
+						</view>
+						<view class="table-header-item">
 							{{item.holder||item._road_no_disp||item._village_no_disp}}
 						</view>
 						<view class="table-header-item">
@@ -71,6 +80,9 @@
 						</view>
 					</view>
 					<view class="table-header" v-if="curTab===2">
+						<view class="table-header-item">
+							{{item._check_user_disp||''}}
+						</view>
 						<view class="table-header-item">
 							{{item.holder||item._road_no_disp||item._village_no_disp}}
 						</view>
@@ -285,7 +297,12 @@
 					"colName": "id",
 					"type": "count",
 					"aliasName": 'num'
-				}]
+				},
+				{
+					colName:'check_user',
+					type:'by'
+				}
+				]
 				info = info || this.accountInfo
 				let type = []
 				switch (this.curTab) {
@@ -425,6 +442,7 @@
 									} else if (item === '问题数') {
 										obj.questNum += data.num
 									}
+									obj._check_user_disp = data._check_user_disp
 									datas[objIndex] = obj
 								} else {
 									obj = {
@@ -439,6 +457,7 @@
 										_village_no_disp: data._village_no_disp,
 										_street_no_disp: data._street_no_disp
 									}
+									obj._check_user_disp = data._check_user_disp
 									if (item === '未处理') {
 										obj.unhandled += data.num
 									} else if (item === '已处理') {
@@ -456,6 +475,7 @@
 									} else {
 										obj.noSure += data.num
 									}
+									obj._check_user_disp = data._check_user_disp
 									datas[objIndex] = obj
 								} else {
 									obj = {
@@ -469,6 +489,7 @@
 										_village_no_disp: data._village_no_disp,
 										_street_no_disp: data._street_no_disp
 									}
+									obj._check_user_disp = data._check_user_disp
 									if (item === '已确认') {
 										obj.isSure += data.num
 									} else {
@@ -486,6 +507,7 @@
 									} else if (item === '上报') {
 										obj.up += data.num
 									}
+									obj._check_user_disp = data._check_user_disp
 									datas[objIndex] = obj
 								} else {
 									obj = {
@@ -500,6 +522,7 @@
 										_village_no_disp: data._village_no_disp,
 										_street_no_disp: data._street_no_disp
 									}
+									obj._check_user_disp = data._check_user_disp
 									if (item === '当日') {
 										obj.today += data.num
 									} else if (item === '两日内') {
